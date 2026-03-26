@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IR Fácil — Declaração Simplificada</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f11;
+    --bg2: #17171a;
+    --bg3: #1e1e22;
+    --bg4: #26262b;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --text: #f0f0f2;
+    --text2: #9999a8;
+    --text3: #5a5a6a;
+    --accent: #5b8cff;
+    --accent2: #3d6eea;
+    --green: #3ecf8e;
+    --green2: #1a7a52;
+    --amber: #f5a623;
+    --red: #ff5a5a;
+    --purple: #a78bfa;
+    --teal: #2dd4bf;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* LAYOUT */
+  .layout { display: flex; min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px;
+    min-width: 240px;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 24px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
+  .logo {
+    padding: 0 24px 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .logo h1 { font-size: 18px; font-weight: 600; letter-spacing: -0.5px; }
+  .logo h1 span { color: var(--accent); }
+  .logo p { font-size: 11px; color: var(--text3); margin-top: 2px; font-family: 'DM Mono', monospace; }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 24px;
+    color: var(--text2);
+    cursor: pointer;
+    border-radius: 0;
+    transition: all 0.15s;
+    font-size: 13px;
+    font-weight: 400;
+    border-left: 2px solid transparent;
+    user-select: none;
+  }
+  .nav-item:hover { color: var(--text); background: var(--bg3); }
+  .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(91,140,255,0.06); }
+  .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+  .nav-section { padding: 16px 24px 6px; font-size: 10px; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; font-family: 'DM Mono', monospace; }
+  .sidebar-footer { margin-top: auto; padding: 16px 24px; border-top: 1px solid var(--border); }
+  .year-badge {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  .year-badge span { color: var(--text2); }
+  .year-badge strong { color: var(--accent); font-family: 'DM Mono', monospace; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); }
+
+  /* MAIN */
+  .main { flex: 1; overflow-y: auto; }
+  .page { display: none; padding: 32px; max-width: 1100px; }
+  .page.active { display: block; }
+
+  /* PAGE HEADER */
+  .page-header { margin-bottom: 28px; }
+  .page-header h2 { font-size: 22px; font-weight: 600; letter-spacing: -0.5px; }
+  .page-header p { color: var(--text2); font-size: 13px; margin-top: 4px; }
+  .header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+  /* CARDS */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .card-sm { padding: 16px; }
+
+  /* GRID */
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+
+  /* METRIC CARD */
+  .metric { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; }
+  .metric-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; font-family: 'DM Mono', monospace; }
+  .metric-value { font-size: 26px; font-weight: 600; margin-top: 4px; letter-spacing: -1px; font-family: 'DM Mono', monospace; }
+  .metric-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
+  .metric-sub .up { color: var(--green); }
+  .metric-sub .down { color: var(--red); }
+
+  /* FONTE CARDS */
+  .fonte-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: border-color 0.2s;
+  }
+  .fonte-card:hover { border-color: var(--border2); }
+  .fonte-header { display: flex; align-items: center; gap: 12px; }
+  .fonte-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+  .fonte-icon.nota { background: rgba(45,212,191,0.12); }
+  .fonte-icon.banco { background: rgba(91,140,255,0.12); }
+  .fonte-icon.caixa { background: rgba(245,166,35,0.12); }
+  .fonte-icon.cartao { background: rgba(167,139,250,0.12); }
+  .fonte-name { font-size: 14px; font-weight: 500; }
+  .fonte-desc { font-size: 11px; color: var(--text3); }
+  .fonte-status { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500;
+  }
+  .pill.connected { background: rgba(62,207,142,0.1); color: var(--green); border: 1px solid rgba(62,207,142,0.2); }
+  .pill.pending { background: rgba(245,166,35,0.1); color: var(--amber); border: 1px solid rgba(245,166,35,0.2); }
+  .pill.disconnected { background: rgba(255,90,90,0.1); color: var(--red); border: 1px solid rgba(255,90,90,0.2); }
+  .fonte-last { font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: var(--radius-sm);
+    font-size: 12px; font-weight: 500; cursor: pointer;
+    transition: all 0.15s; border: none; font-family: 'Sora', sans-serif;
+    white-space: nowrap;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent2); }
+  .btn-ghost { background: var(--bg3); color: var(--text2); border: 1px solid var(--border); }
+  .btn-ghost:hover { color: var(--text); border-color: var(--border2); }
+  .btn-danger { background: rgba(255,90,90,0.1); color: var(--red); border: 1px solid rgba(255,90,90,0.2); }
+  .btn-danger:hover { background: rgba(255,90,90,0.2); }
+  .btn-sm { padding: 6px 12px; font-size: 11px; }
+
+  /* PROGRESS BAR */
+  .progress-bar { height: 4px; background: var(--bg4); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 2px; transition: width 0.4s; }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { text-align: left; padding: 10px 12px; color: var(--text3); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; font-family: 'DM Mono', monospace; font-weight: 400; border-bottom: 1px solid var(--border); }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+  tbody tr:hover { background: var(--bg3); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody td { padding: 10px 12px; }
+  .td-mono { font-family: 'DM Mono', monospace; font-size: 12px; }
+  .cat-pill {
+    display: inline-flex; align-items: center;
+    padding: 2px 8px; border-radius: 4px; font-size: 11px;
+  }
+  .cat-saude { background: rgba(45,212,191,0.1); color: var(--teal); }
+  .cat-alimentacao { background: rgba(62,207,142,0.1); color: var(--green); }
+  .cat-educacao { background: rgba(91,140,255,0.1); color: var(--accent); }
+  .cat-moradia { background: rgba(245,166,35,0.1); color: var(--amber); }
+  .cat-transporte { background: rgba(167,139,250,0.1); color: var(--purple); }
+  .cat-outros { background: var(--bg4); color: var(--text2); }
+  .cat-financiamento { background: rgba(245,166,35,0.1); color: var(--amber); }
+
+  /* SECTION TITLE */
+  .section-title { font-size: 13px; font-weight: 500; margin-bottom: 12px; color: var(--text2); }
+
+  /* OPEN FINANCE CONNECT */
+  .openf-banner {
+    background: linear-gradient(135deg, rgba(91,140,255,0.08), rgba(167,139,250,0.08));
+    border: 1px solid rgba(91,140,255,0.2);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    display: flex; align-items: center; gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .openf-icon { font-size: 32px; flex-shrink: 0; }
+  .openf-text { flex: 1; }
+  .openf-text h3 { font-size: 15px; font-weight: 600; color: var(--accent); }
+  .openf-text p { font-size: 12px; color: var(--text2); margin-top: 4px; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75); backdrop-filter: blur(4px);
+    z-index: 100; align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg2); border: 1px solid var(--border2);
+    border-radius: 16px; padding: 28px; width: 100%; max-width: 480px;
+    margin: 16px;
+  }
+  .modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .modal p { font-size: 13px; color: var(--text2); margin-bottom: 20px; }
+  .modal-close { float: right; background: none; border: none; color: var(--text3); font-size: 20px; cursor: pointer; line-height: 1; }
+  .input-group { margin-bottom: 14px; }
+  .input-group label { display: block; font-size: 11px; color: var(--text3); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em; font-family: 'DM Mono', monospace; }
+  .input-group input, .input-group select {
+    width: 100%; background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 9px 12px; color: var(--text);
+    font-size: 13px; font-family: 'Sora', sans-serif; transition: border-color 0.15s;
+  }
+  .input-group input:focus, .input-group select:focus { outline: none; border-color: var(--accent); }
+  .input-group select option { background: var(--bg3); }
+  .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+
+  /* DONUT CHART */
+  .donut-wrap { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+  .donut-legend { flex: 1; min-width: 160px; }
+  .legend-item { display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: 12px; border-bottom: 1px solid var(--border); }
+  .legend-item:last-child { border-bottom: none; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .legend-name { flex: 1; color: var(--text2); }
+  .legend-val { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text); }
+  .legend-pct { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3); min-width: 32px; text-align: right; }
+
+  /* TIMELINE */
+  .timeline { position: relative; padding-left: 24px; }
+  .timeline::before { content: ''; position: absolute; left: 8px; top: 6px; bottom: 6px; width: 1px; background: var(--border); }
+  .tl-item { position: relative; margin-bottom: 16px; }
+  .tl-dot { position: absolute; left: -20px; top: 4px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); }
+  .tl-dot.green { background: var(--green); }
+  .tl-dot.amber { background: var(--amber); }
+  .tl-date { font-size: 10px; color: var(--text3); font-family: 'DM Mono', monospace; }
+  .tl-desc { font-size: 13px; color: var(--text); }
+  .tl-val { font-size: 12px; color: var(--text2); font-family: 'DM Mono', monospace; }
+
+  /* IR REPORT */
+  .ir-section { margin-bottom: 24px; }
+  .ir-section h4 { font-size: 13px; font-weight: 500; color: var(--text2); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.06em; font-family: 'DM Mono', monospace; }
+  .ir-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .ir-row:last-child { border-bottom: none; }
+  .ir-row.total { font-weight: 600; font-size: 15px; padding-top: 14px; }
+  .ir-row .val { font-family: 'DM Mono', monospace; color: var(--text); }
+  .ir-row.total .val { color: var(--green); font-size: 16px; }
+  .ir-row .label { color: var(--text2); }
+  .ir-row.total .label { color: var(--text); }
+  .deductible { color: var(--green); font-size: 11px; font-family: 'DM Mono', monospace; }
+
+  /* ALERT */
+  .alert { padding: 12px 16px; border-radius: var(--radius-sm); font-size: 12px; display: flex; gap: 10px; align-items: flex-start; margin-bottom: 12px; }
+  .alert-info { background: rgba(91,140,255,0.08); border: 1px solid rgba(91,140,255,0.2); color: var(--text2); }
+  .alert-success { background: rgba(62,207,142,0.08); border: 1px solid rgba(62,207,142,0.2); color: var(--text2); }
+  .alert-warn { background: rgba(245,166,35,0.08); border: 1px solid rgba(245,166,35,0.2); color: var(--text2); }
+  .alert-icon { flex-shrink: 0; font-size: 14px; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+  .tab { padding: 8px 16px; font-size: 13px; cursor: pointer; color: var(--text3); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; }
+  .tab:hover { color: var(--text2); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* MONTH BAR CHART */
+  .bar-chart { display: flex; gap: 6px; align-items: flex-end; height: 80px; margin-bottom: 6px; }
+  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .bar { width: 100%; background: var(--accent); border-radius: 3px 3px 0 0; opacity: 0.7; min-height: 2px; transition: opacity 0.15s; cursor: pointer; }
+  .bar:hover { opacity: 1; }
+  .bar.expenses { background: var(--red); }
+  .bar-label { font-size: 9px; color: var(--text3); font-family: 'DM Mono', monospace; }
+
+  /* TOAST */
+  #toast {
+    position: fixed; bottom: 24px; right: 24px; background: var(--bg2);
+    border: 1px solid var(--border2); border-radius: var(--radius-sm);
+    padding: 12px 16px; font-size: 13px; z-index: 200;
+    transform: translateY(20px); opacity: 0; transition: all 0.3s;
+    pointer-events: none; display: flex; align-items: center; gap: 8px;
+  }
+  #toast.show { transform: translateY(0); opacity: 1; }
+
+  /* IMPORT AREA */
+  .import-zone {
+    border: 2px dashed var(--border2); border-radius: var(--radius);
+    padding: 32px; text-align: center; cursor: pointer; transition: all 0.2s;
+  }
+  .import-zone:hover { border-color: var(--accent); background: rgba(91,140,255,0.04); }
+  .import-zone .icon { font-size: 32px; margin-bottom: 8px; }
+  .import-zone h4 { font-size: 14px; font-weight: 500; }
+  .import-zone p { font-size: 12px; color: var(--text3); margin-top: 4px; }
+
+  /* SEARCH */
+  .search-bar {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 7px 12px;
+    flex: 1; max-width: 280px;
+  }
+  .search-bar input {
+    background: none; border: none; outline: none; color: var(--text);
+    font-size: 13px; width: 100%; font-family: 'Sora', sans-serif;
+  }
+  .search-icon { color: var(--text3); font-size: 14px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .sidebar { display: none; }
+    .page { padding: 16px; }
+    .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <h1>IR<span>Fácil</span></h1>
+      <p>declaração simplificada</p>
+    </div>
+
+    <span class="nav-section">visão geral</span>
+    <div class="nav-item active" onclick="nav('dashboard')">
+      <span class="nav-icon">◈</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="nav('transacoes')">
+      <span class="nav-icon">◫</span> Transações
+    </div>
+
+    <span class="nav-section">fontes</span>
+    <div class="nav-item" onclick="nav('fontes')">
+      <span class="nav-icon">⬡</span> Conectar Fontes
+    </div>
+    <div class="nav-item" onclick="nav('importar')">
+      <span class="nav-icon">↑</span> Importar Dados
+    </div>
+
+    <span class="nav-section">declaração</span>
+    <div class="nav-item" onclick="nav('relatorio')">
+      <span class="nav-icon">▦</span> Relatório IR
+    </div>
+    <div class="nav-item" onclick="nav('deducoes')">
+      <span class="nav-icon">◎</span> Deduções
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="year-badge">
+        <div><span>Ano-base</span><br><strong>2025</strong></div>
+        <div class="status-dot"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div id="p-dashboard" class="page active">
+      <div class="page-header header-row">
+        <div>
+          <h2>Dashboard</h2>
+          <p>Resumo financeiro para declaração do IR 2026 (ano-base 2025)</p>
+        </div>
+        <button class="btn btn-primary" onclick="nav('relatorio')">▦ Gerar Relatório IR</button>
+      </div>
+
+      <div class="grid-4" style="margin-bottom: 20px;">
+        <div class="metric">
+          <div class="metric-label">Renda Bruta</div>
+          <div class="metric-value" style="color: var(--green);">72.480</div>
+          <div class="metric-sub">R$ anual • <span class="up">▲ salário + extras</span></div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Total Gastos</div>
+          <div class="metric-value">48.230</div>
+          <div class="metric-sub">R$ registrados em 2025</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Dedutível IR</div>
+          <div class="metric-value" style="color: var(--accent);">14.820</div>
+          <div class="metric-sub">R$ estimado • <span class="up">saúde + educação</span></div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Transações</div>
+          <div class="metric-value">1.247</div>
+          <div class="metric-sub">de 4 fontes conectadas</div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom: 20px;">
+
+        <!-- GASTOS POR CATEGORIA -->
+        <div class="card">
+          <div class="section-title">Gastos por categoria — 2025</div>
+          <div class="donut-wrap">
+            <svg width="120" height="120" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="50" fill="none" stroke="var(--bg3)" stroke-width="18"/>
+              <!-- Saúde 18% -->
+              <circle cx="60" cy="60" r="50" fill="none" stroke="#2dd4bf" stroke-width="18"
+                stroke-dasharray="56.5 257.1" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
+              <!-- Alimentação 26% -->
+              <circle cx="60" cy="60" r="50" fill="none" stroke="#3ecf8e" stroke-width="18"
+                stroke-dasharray="81.7 231.9" stroke-dashoffset="-56.5" transform="rotate(-90 60 60)"/>
+              <!-- Moradia/Financ 31% -->
+              <circle cx="60" cy="60" r="50" fill="none" stroke="#f5a623" stroke-width="18"
+                stroke-dasharray="97.4 216.2" stroke-dashoffset="-138.2" transform="rotate(-90 60 60)"/>
+              <!-- Educação 8% -->
+              <circle cx="60" cy="60" r="50" fill="none" stroke="#5b8cff" stroke-width="18"
+                stroke-dasharray="25.1 288.5" stroke-dashoffset="-235.6" transform="rotate(-90 60 60)"/>
+              <!-- Outros 17% -->
+              <circle cx="60" cy="60" r="50" fill="none" stroke="var(--bg4)" stroke-width="18"
+                stroke-dasharray="53.4 260.2" stroke-dashoffset="-260.7" transform="rotate(-90 60 60)"/>
+              <text x="60" y="56" text-anchor="middle" font-size="10" fill="var(--text3)" font-family="DM Mono">total</text>
+              <text x="60" y="70" text-anchor="middle" font-size="13" fill="var(--text)" font-family="DM Mono" font-weight="500">48.2k</text>
+            </svg>
+            <div class="donut-legend">
+              <div class="legend-item"><div class="legend-dot" style="background:#2dd4bf"></div><span class="legend-name">Saúde</span><span class="legend-val">R$ 8.682</span><span class="legend-pct">18%</span></div>
+              <div class="legend-item"><div class="legend-dot" style="background:#3ecf8e"></div><span class="legend-name">Alimentação</span><span class="legend-val">R$ 12.540</span><span class="legend-pct">26%</span></div>
+              <div class="legend-item"><div class="legend-dot" style="background:#f5a623"></div><span class="legend-name">Moradia/Financ.</span><span class="legend-val">R$ 14.951</span><span class="legend-pct">31%</span></div>
+              <div class="legend-item"><div class="legend-dot" style="background:#5b8cff"></div><span class="legend-name">Educação</span><span class="legend-val">R$ 3.858</span><span class="legend-pct">8%</span></div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--bg4)"></div><span class="legend-name">Outros</span><span class="legend-val">R$ 8.199</span><span class="legend-pct">17%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- EVOLUÇÃO MENSAL -->
+        <div class="card">
+          <div class="section-title">Gastos mensais — 2025</div>
+          <div class="bar-chart" id="monthChart"></div>
+          <div style="display:flex; gap:6px; justify-content:space-between;" id="monthLabels"></div>
+          <div style="display:flex; gap:12px; margin-top:10px;">
+            <span style="font-size:11px; color:var(--text3); display:flex; align-items:center; gap:4px;"><span style="width:8px;height:8px;background:var(--accent);border-radius:2px;display:inline-block;opacity:.7"></span> Renda</span>
+            <span style="font-size:11px; color:var(--text3); display:flex; align-items:center; gap:4px;"><span style="width:8px;height:8px;background:var(--red);border-radius:2px;display:inline-block;opacity:.7"></span> Gastos</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- FONTES STATUS -->
+      <div class="section-title">Status das fontes conectadas</div>
+      <div class="grid-4">
+        <div class="fonte-card">
+          <div class="fonte-header">
+            <div class="fonte-icon nota">🧾</div>
+            <div>
+              <div class="fonte-name">Nota Paraná</div>
+              <div class="fonte-desc">Notas fiscais CPF</div>
+            </div>
+          </div>
+          <div class="pill connected">● Conectado</div>
+          <div style="font-size:11px;color:var(--text3);">387 notas · R$ 12.540</div>
+        </div>
+        <div class="fonte-card">
+          <div class="fonte-header">
+            <div class="fonte-icon banco">🏦</div>
+            <div>
+              <div class="fonte-name">Banco Principal</div>
+              <div class="fonte-desc">Conta corrente + cartão</div>
+            </div>
+          </div>
+          <div class="pill connected">● Conectado</div>
+          <div style="font-size:11px;color:var(--text3);">642 transações · R$ 38.420</div>
+        </div>
+        <div class="fonte-card">
+          <div class="fonte-header">
+            <div class="fonte-icon caixa">🏗️</div>
+            <div>
+              <div class="fonte-name">Caixa Econômica</div>
+              <div class="fonte-desc">Financiamento imóvel</div>
+            </div>
+          </div>
+          <div class="pill connected">● Conectado</div>
+          <div style="font-size:11px;color:var(--text3);">12 parcelas · R$ 14.951</div>
+        </div>
+        <div class="fonte-card">
+          <div class="fonte-header">
+            <div class="fonte-icon cartao">🛒</div>
+            <div>
+              <div class="fonte-name">Cartão Loja Online</div>
+              <div class="fonte-desc">App de compras</div>
+            </div>
+          </div>
+          <div class="pill pending">◑ Sincronizando</div>
+          <div style="font-size:11px;color:var(--text3);">218 transações · R$ 6.840</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FONTES -->
+    <div id="p-fontes" class="page">
+      <div class="page-header header-row">
+        <div>
+          <h2>Conectar Fontes</h2>
+          <p>Via Open Finance (consentimento seguro) e APIs oficiais</p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('modal-connect')">+ Adicionar Fonte</button>
+      </div>
+
+      <div class="openf-banner">
+        <div class="openf-icon">🔐</div>
+        <div class="openf-text">
+          <h3>Open Finance Brasil</h3>
+          <p>Suas conexões são feitas via protocolo Open Finance regulamentado pelo Banco Central. Você autoriza o compartilhamento por até 12 meses com revogação a qualquer momento. Nenhuma senha é armazenada.</p>
+        </div>
+        <a href="https://openfinancebrasil.org.br" target="_blank" style="color:var(--accent);font-size:12px;white-space:nowrap;">Saiba mais →</a>
+      </div>
+
+      <div class="grid-2">
+
+        <!-- NOTA PARANÁ -->
+        <div class="fonte-card">
+          <div class="fonte-header">
+            <div class="fonte-icon nota">🧾</div>
+            <div>
+              <div class="fonte-name">Nota Paraná</div>
+              <div class="fonte-desc">Secretaria da Fazenda do Paraná</div>
+            </div>
+            <div style="margin-left:auto"><div class="pill connected">● Ativo</div></div>
+          </div>
+          <div style="font-size:12px;color:var(--text2);">Importa notas fiscais onde seu CPF foi informado na compra. Dados de alimentação, saúde, farmácia e outros estabelecimentos.</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--green)"></div></div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);">
+            <span>387 notas importadas</span><span>Última sync: hoje</span>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-ghost btn-sm" onclick="showToast('🔄 Sincronizando Nota Paraná...')">↻ Sincronizar</button>
+            <button class="btn btn-danger btn-sm">Desconectar</button>
+          </div>
+        </div>
+
+        <!-- BANCO PRINCIPAL -->
+        <div class="fonte-card">
+          <div class="fonte-header">
+            <div class="fonte-icon banco">🏦</div>
+            <div>
+              <div class="fonte-name">Banco Principal</div>
+              <div class="fonte-desc">Open Finance · Conta corrente</div>
+            </div>
+            <div style="margin-left:auto"><div class="pill connected">● Ativo</div></div>
+          </div>
+          <div style="font-size:12px;color:var(--text2);">Extrato completo da conta corrente, holerites creditados, transferências e cartão de crédito vinculado. Consentimento autorizado em 15/01/2025.</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--green)"></div></div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);">
+            <span>642 transações importadas</span><span>Última sync: ontem</span>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-ghost btn-sm" onclick="showToast('🔄 Sincronizando banco...')">↻ Sincronizar</button>
+            <button class="btn btn-danger btn-sm">Desconectar</button>
+          </div>
+        </div>
+
+        <!-- CAIXA ECONÔMICA -->
+        <div class="fonte-card">
+          <div class="fonte-header">
+            <div class="fonte-icon caixa">🏗️</div>
+            <div>
+              <div class="fonte-name">Caixa Econômica Federal</div>
+              <div class="fonte-desc">Open Finance · Financiamento</div>
+            </div>
+            <div style="margin-left:auto"><div class="pill connected">● Ativo</div></div>
+          </div>
+          <div style="font-size:12px;color:var(--text2);">Parcelas do financiamento imobiliário, composição juros/amortização por parcela, saldo devedor atualizado. Dados essenciais para declarar o imóvel no IR.</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--green)"></div></div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);">
+            <span>12 parcelas de 2025</span><span>Contrato: R$ 320.000</span>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-ghost btn-sm" onclick="showToast('🔄 Sincronizando Caixa...')">↻ Sincronizar</button>
+            <button class="btn btn-danger btn-sm">Desconectar</button>
+          </div>
+        </div>
+
+        <!-- CARTÃO ONLINE -->
+        <div class="fonte-card">
+          <div class="fonte-header">
+            <div class="fonte-icon cartao">🛒</div>
+            <div>
+              <div class="fonte-name">Cartão Loja Online</div>
+              <div class="fonte-desc">Open Finance · Em aprovação</div>
+            </div>
+            <div style="margin-left:auto"><div class="pill pending">◑ Pendente</div></div>
+          </div>
+          <div style="font-size:12px;color:var(--text2);">Aguardando confirmação do consentimento no app da operadora. Abra o app do cartão e confirme o compartilhamento de dados via Open Finance.</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--amber)"></div></div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);">
+            <span>Consentimento pendente</span><span>Expira em: 2 dias</span>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-primary btn-sm" onclick="showToast('📱 Abra o app do cartão para confirmar')">Confirmar no App</button>
+            <button class="btn btn-danger btn-sm">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRANSAÇÕES -->
+    <div id="p-transacoes" class="page">
+      <div class="page-header header-row">
+        <div>
+          <h2>Transações</h2>
+          <p>1.247 transações importadas de 4 fontes</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <div class="search-bar">
+            <span class="search-icon">⌕</span>
+            <input type="text" placeholder="Buscar transação..." onkeyup="filterTransactions(this.value)">
+          </div>
+          <select style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 12px;color:var(--text);font-size:13px;font-family:'Sora',sans-serif;" onchange="filterByCategory(this.value)">
+            <option value="">Todas categorias</option>
+            <option value="Saúde">Saúde</option>
+            <option value="Alimentação">Alimentação</option>
+            <option value="Moradia">Moradia</option>
+            <option value="Educação">Educação</option>
+            <option value="Outros">Outros</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" onclick="setTab(this,'all')">Todas</div>
+        <div class="tab" onclick="setTab(this,'dedutivel')">Dedutíveis IR</div>
+        <div class="tab" onclick="setTab(this,'financiamento')">Financiamento</div>
+        <div class="tab" onclick="setTab(this,'notas')">Notas Fiscais</div>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table id="transTable">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Descrição</th>
+                <th>Fonte</th>
+                <th>Categoria</th>
+                <th>Dedutível</th>
+                <th style="text-align:right">Valor</th>
+              </tr>
+            </thead>
+            <tbody id="transBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- IMPORTAR -->
+    <div id="p-importar" class="page">
+      <div class="page-header">
+        <h2>Importar Dados</h2>
+        <p>Upload manual de extratos PDF ou CSV como alternativa ao Open Finance</p>
+      </div>
+
+      <div class="alert alert-info">
+        <span class="alert-icon">ℹ</span>
+        <span>Para bancos ainda não integrados ao Open Finance, você pode importar extratos em PDF ou planilhas CSV. Os dados são processados localmente e não saem do seu navegador.</span>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:20px;">
+        <div>
+          <div class="section-title">Upload de extrato bancário</div>
+          <div class="import-zone" onclick="showToast('📁 Selecione um arquivo PDF ou CSV')">
+            <div class="icon">📄</div>
+            <h4>Arraste ou clique para importar</h4>
+            <p>Aceita: PDF de extrato, CSV OFX, Excel .xlsx</p>
+          </div>
+        </div>
+        <div>
+          <div class="section-title">Importar do Nota Paraná (manual)</div>
+          <div class="import-zone" onclick="showToast('🧾 Acesse nota.pr.gov.br e exporte seu histórico')">
+            <div class="icon">🧾</div>
+            <h4>Exportar do portal Nota Paraná</h4>
+            <p>Acesse nota.pr.gov.br → Minha Conta → Exportar XML</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">Histórico de importações</div>
+      <div class="card">
+        <div class="timeline">
+          <div class="tl-item"><div class="tl-dot green"></div>
+            <div class="tl-date">15/03/2025 14:32</div>
+            <div class="tl-desc">Nota Paraná — Jan–Mar 2025</div>
+            <div class="tl-val">142 notas · R$ 4.280</div>
+          </div>
+          <div class="tl-item"><div class="tl-dot green"></div>
+            <div class="tl-date">10/01/2025 09:15</div>
+            <div class="tl-desc">Banco Principal — extrato Dez 2024</div>
+            <div class="tl-val">87 transações · R$ 6.750</div>
+          </div>
+          <div class="tl-item"><div class="tl-dot amber"></div>
+            <div class="tl-date">05/01/2025 11:00</div>
+            <div class="tl-desc">Caixa — extrato 2024 parcial</div>
+            <div class="tl-val">8 parcelas · R$ 9.967</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RELATÓRIO IR -->
+    <div id="p-relatorio" class="page">
+      <div class="page-header header-row">
+        <div>
+          <h2>Relatório IR 2026</h2>
+          <p>Dados consolidados para declaração — ano-base 2025</p>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-ghost" onclick="showToast('📋 Copiando dados para área de transferência...')">◧ Copiar</button>
+          <button class="btn btn-primary" onclick="showToast('📥 Gerando PDF do relatório...')">↓ Exportar PDF</button>
+        </div>
+      </div>
+
+      <div class="alert alert-success">
+        <span class="alert-icon">✓</span>
+        <span>Relatório gerado automaticamente a partir das 4 fontes conectadas. Confira os valores antes de declarar — você pode editar categorias na aba Transações.</span>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <!-- RENDIMENTOS -->
+          <div class="card" style="margin-bottom:16px;">
+            <div class="ir-section">
+              <h4>Rendimentos tributáveis</h4>
+              <div class="ir-row"><span class="label">Salário (12 meses)</span><span class="val">R$ 66.000,00</span></div>
+              <div class="ir-row"><span class="label">13º salário</span><span class="val">R$ 5.500,00</span></div>
+              <div class="ir-row"><span class="label">Outros (horas extras)</span><span class="val">R$ 980,00</span></div>
+              <div class="ir-row total"><span class="label">Total rendimentos</span><span class="val">R$ 72.480,00</span></div>
+            </div>
+          </div>
+
+          <!-- BENS E DIREITOS -->
+          <div class="card">
+            <div class="ir-section">
+              <h4>Bens e direitos</h4>
+              <div class="ir-row"><span class="label">Imóvel financiado (Caixa)</span><span class="val">R$ 320.000,00</span></div>
+              <div class="ir-row"><span class="label">Saldo pago em 2025</span><span class="val">R$ 14.951,00</span></div>
+              <div class="ir-row"><span class="label">Saldo devedor atual</span><span class="val">R$ 241.320,00</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <!-- DEDUÇÕES -->
+          <div class="card">
+            <div class="ir-section">
+              <h4>Deduções — despesas</h4>
+              <div class="ir-row">
+                <span class="label">Saúde (médico, plano, farmácia)</span>
+                <div style="text-align:right">
+                  <div class="val">R$ 8.682,00</div>
+                  <div class="deductible">✓ dedutível integral</div>
+                </div>
+              </div>
+              <div class="ir-row">
+                <span class="label">Educação (curso, escola)</span>
+                <div style="text-align:right">
+                  <div class="val">R$ 3.561,50</div>
+                  <div class="deductible">✓ até R$ 3.561,50/pessoa</div>
+                </div>
+              </div>
+              <div class="ir-row">
+                <span class="label">Previdência privada (PGBL)</span>
+                <div style="text-align:right">
+                  <div class="val">R$ 2.000,00</div>
+                  <div class="deductible">✓ até 12% renda bruta</div>
+                </div>
+              </div>
+              <div class="ir-row">
+                <span class="label">Dependentes</span>
+                <div style="text-align:right">
+                  <div class="val">R$ 2.275,08</div>
+                  <div class="deductible">✓ R$ 2.275,08/dependente</div>
+                </div>
+              </div>
+              <div class="ir-row">
+                <span class="label">Contribuição INSS</span>
+                <div style="text-align:right">
+                  <div class="val">R$ 7.786,02</div>
+                  <div class="deductible">✓ dedutível integral</div>
+                </div>
+              </div>
+              <div class="ir-row total">
+                <span class="label">Total deduções</span>
+                <span class="val">R$ 24.304,60</span>
+              </div>
+            </div>
+
+            <div style="background:rgba(62,207,142,0.06);border:1px solid rgba(62,207,142,0.15);border-radius:var(--radius-sm);padding:14px;margin-top:12px;">
+              <div style="font-size:11px;color:var(--text3);margin-bottom:4px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;">Base de cálculo estimada</div>
+              <div style="font-size:22px;font-weight:600;font-family:'DM Mono',monospace;color:var(--green);">R$ 48.175,40</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:2px;">R$ 72.480 − R$ 24.304,60 de deduções</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-warn" style="margin-top:16px;">
+        <span class="alert-icon">⚠</span>
+        <span>Este relatório é uma estimativa com base nos dados importados. Confira os comprovantes originais e consulte um contador para a declaração oficial. Valores sujeitos a alterações da tabela IRPF.</span>
+      </div>
+    </div>
+
+    <!-- DEDUÇÕES -->
+    <div id="p-deducoes" class="page">
+      <div class="page-header header-row">
+        <div>
+          <h2>Deduções</h2>
+          <p>Gerencie e maximize suas deduções no Imposto de Renda</p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('modal-deducao')">+ Adicionar Despesa</button>
+      </div>
+
+      <div class="grid-3" style="margin-bottom:20px;">
+        <div class="metric">
+          <div class="metric-label">Saúde</div>
+          <div class="metric-value" style="color:var(--teal)">8.682</div>
+          <div class="metric-sub">R$ · sem limite legal</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Educação</div>
+          <div class="metric-value" style="color:var(--accent)">3.858</div>
+          <div class="metric-sub">R$ · limite R$ 3.561,50 <span class="down">▲ acima</span></div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Previdência</div>
+          <div class="metric-value" style="color:var(--purple)">2.000</div>
+          <div class="metric-sub">R$ · limite 12% da renda</div>
+        </div>
+      </div>
+
+      <div class="alert alert-warn">
+        <span class="alert-icon">⚠</span>
+        <span>Educação: R$ 3.858 registrados, mas o limite de dedução é R$ 3.561,50 por pessoa. Você está R$ 296,50 acima do limite — o excedente não será deduzido.</span>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Despesas dedutíveis registradas</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Data</th><th>Descrição</th><th>Tipo</th><th>Comprovante</th><th style="text-align:right">Valor</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="td-mono">12/01/2025</td><td>Plano de saúde mensal</td><td><span class="cat-pill cat-saude">Saúde</span></td><td style="color:var(--green);font-size:12px;">✓ NF importada</td><td class="td-mono" style="text-align:right">R$ 480,00</td></tr>
+              <tr><td class="td-mono">15/02/2025</td><td>Consulta médica — cardiologista</td><td><span class="cat-pill cat-saude">Saúde</span></td><td style="color:var(--green);font-size:12px;">✓ NF importada</td><td class="td-mono" style="text-align:right">R$ 350,00</td></tr>
+              <tr><td class="td-mono">10/03/2025</td><td>Mensalidade faculdade</td><td><span class="cat-pill cat-educacao">Educação</span></td><td style="color:var(--green);font-size:12px;">✓ NF importada</td><td class="td-mono" style="text-align:right">R$ 620,00</td></tr>
+              <tr><td class="td-mono">01/04/2025</td><td>Exames laboratoriais</td><td><span class="cat-pill cat-saude">Saúde</span></td><td style="color:var(--amber);font-size:12px;">⚠ sem NF</td><td class="td-mono" style="text-align:right">R$ 280,00</td></tr>
+              <tr><td class="td-mono">05/05/2025</td><td>Aporte PGBL — previdência</td><td><span class="cat-pill cat-outros">Previdência</span></td><td style="color:var(--green);font-size:12px;">✓ informe banco</td><td class="td-mono" style="text-align:right">R$ 500,00</td></tr>
+              <tr><td class="td-mono">20/06/2025</td><td>Óculos de grau + lentes</td><td><span class="cat-pill cat-saude">Saúde</span></td><td style="color:var(--red);font-size:12px;">✗ pendente</td><td class="td-mono" style="text-align:right">R$ 1.200,00</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL CONECTAR FONTE -->
+<div id="modal-connect" class="modal-overlay" onclick="closeModalOutside(event,'modal-connect')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-connect')">×</button>
+    <h3>Conectar nova fonte</h3>
+    <p>Selecione a instituição e autorize via Open Finance. Você será redirecionado para o app/site da instituição para aprovar o consentimento.</p>
+    <div class="input-group">
+      <label>Instituição financeira</label>
+      <select>
+        <option>Nubank</option><option>Itaú</option><option>Bradesco</option>
+        <option>Santander</option><option>BTG Pactual</option>
+        <option>Mercado Pago</option><option>Inter</option><option>C6 Bank</option>
+        <option>Sicredi</option><option>Outro banco...</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label>Tipo de dado</label>
+      <select>
+        <option>Conta corrente + cartão</option>
+        <option>Conta poupança</option>
+        <option>Financiamento imobiliário</option>
+        <option>Investimentos</option>
+        <option>Cartão de crédito</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label>Período do consentimento</label>
+      <select><option>12 meses</option><option>6 meses</option><option>3 meses</option></select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-connect')">Cancelar</button>
+      <button class="btn btn-primary" style="flex:2" onclick="closeModal('modal-connect');showToast('🔐 Redirecionando para autorização Open Finance...')">🔐 Autorizar via Open Finance</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DEDUCAO -->
+<div id="modal-deducao" class="modal-overlay" onclick="closeModalOutside(event,'modal-deducao')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-deducao')">×</button>
+    <h3>Adicionar despesa dedutível</h3>
+    <p>Adicione manualmente despesas que não foram capturadas automaticamente.</p>
+    <div class="input-group"><label>Descrição</label><input type="text" placeholder="Ex: Consulta médica particular"></div>
+    <div class="input-group"><label>Tipo de dedução</label>
+      <select><option>Saúde</option><option>Educação</option><option>Previdência privada</option><option>Dependente</option></select>
+    </div>
+    <div class="input-group"><label>Valor (R$)</label><input type="number" placeholder="0,00"></div>
+    <div class="input-group"><label>Data</label><input type="date"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-deducao')">Cancelar</button>
+      <button class="btn btn-primary" style="flex:2" onclick="closeModal('modal-deducao');showToast('✓ Despesa adicionada com sucesso!')">Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const transactions = [
+  {date:'2025-12-15',desc:'Supermercado BIG — Nota Paraná',fonte:'Nota Paraná',cat:'Alimentação',deductible:false,val:287.50},
+  {date:'2025-12-10',desc:'Parcela financiamento — CEF',fonte:'Caixa Econômica',cat:'Moradia',deductible:false,val:1245.92},
+  {date:'2025-12-05',desc:'Plano de saúde Unimed',fonte:'Banco Principal',cat:'Saúde',deductible:true,val:480.00},
+  {date:'2025-11-28',desc:'Farmácia São João — Nota Paraná',fonte:'Nota Paraná',cat:'Saúde',deductible:true,val:92.80},
+  {date:'2025-11-20',desc:'Mensalidade faculdade EAD',fonte:'Cartão Online',cat:'Educação',deductible:true,val:620.00},
+  {date:'2025-11-15',desc:'Posto de combustível PR',fonte:'Nota Paraná',cat:'Transporte',deductible:false,val:320.00},
+  {date:'2025-11-10',desc:'Parcela financiamento — CEF',fonte:'Caixa Econômica',cat:'Moradia',deductible:false,val:1245.92},
+  {date:'2025-11-05',desc:'Aporte PGBL Banco Principal',fonte:'Banco Principal',cat:'Outros',deductible:true,val:500.00},
+  {date:'2025-10-22',desc:'Consulta médica — Dr. Ribeiro',fonte:'Banco Principal',cat:'Saúde',deductible:true,val:350.00},
+  {date:'2025-10-15',desc:'Amazon — eletrônicos',fonte:'Cartão Online',cat:'Outros',deductible:false,val:1840.00},
+  {date:'2025-10-10',desc:'Parcela financiamento — CEF',fonte:'Caixa Econômica',cat:'Moradia',deductible:false,val:1245.92},
+  {date:'2025-09-30',desc:'Mercadinho local — Nota Paraná',fonte:'Nota Paraná',cat:'Alimentação',deductible:false,val:156.40},
+  {date:'2025-09-15',desc:'Exame de sangue — laboratório',fonte:'Nota Paraná',cat:'Saúde',deductible:true,val:280.00},
+  {date:'2025-08-20',desc:'Óculos de grau + armação',fonte:'Banco Principal',cat:'Saúde',deductible:true,val:1200.00},
+  {date:'2025-08-10',desc:'Salário — crédito em conta',fonte:'Banco Principal',cat:'Renda',deductible:false,val:5500.00},
+];
+
+let currentFilter = '';
+let currentCat = '';
+let currentTab = 'all';
+
+function renderTransactions() {
+  const tbody = document.getElementById('transBody');
+  let data = transactions.filter(t => {
+    const matchFilter = !currentFilter || t.desc.toLowerCase().includes(currentFilter.toLowerCase());
+    const matchCat = !currentCat || t.cat === currentCat;
+    const matchTab = currentTab === 'all' ||
+      (currentTab === 'dedutivel' && t.deductible) ||
+      (currentTab === 'financiamento' && t.fonte === 'Caixa Econômica') ||
+      (currentTab === 'notas' && t.fonte === 'Nota Paraná');
+    return matchFilter && matchCat && matchTab;
+  });
+
+  tbody.innerHTML = data.map(t => {
+    const catClass = {
+      'Saúde':'cat-saude','Alimentação':'cat-alimentacao','Educação':'cat-educacao',
+      'Moradia':'cat-moradia','Transporte':'cat-transporte','Outros':'cat-outros',
+      'Renda':'cat-outros'
+    }[t.cat] || 'cat-outros';
+    const deductIcon = t.deductible
+      ? '<span style="color:var(--green);font-size:12px;">✓ sim</span>'
+      : '<span style="color:var(--text3);font-size:12px;">—</span>';
+    const color = t.cat === 'Renda' ? 'color:var(--green)' : '';
+    return `<tr>
+      <td class="td-mono">${t.date.split('-').reverse().join('/')}</td>
+      <td>${t.desc}</td>
+      <td style="font-size:11px;color:var(--text3)">${t.fonte}</td>
+      <td><span class="cat-pill ${catClass}">${t.cat}</span></td>
+      <td>${deductIcon}</td>
+      <td class="td-mono" style="text-align:right;${color}">R$ ${t.val.toFixed(2).replace('.',',')}</td>
+    </tr>`;
+  }).join('');
+}
+
+function filterTransactions(v) { currentFilter = v; renderTransactions(); }
+function filterByCategory(v) { currentCat = v; renderTransactions(); }
+function setTab(el, tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  currentTab = tab;
+  renderTransactions();
+}
+
+// Monthly bar chart
+const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const income = [5500,5500,6200,5500,5500,5500,5500,11000,5500,5500,5500,6480];
+const expenses = [3200,2800,4100,3600,3900,4200,3800,5200,3700,4800,4100,4100];
+const maxVal = Math.max(...income, ...expenses);
+
+function buildChart() {
+  const chart = document.getElementById('monthChart');
+  const labels = document.getElementById('monthLabels');
+  chart.innerHTML = '';
+  labels.innerHTML = '';
+  months.forEach((m, i) => {
+    const incH = Math.round((income[i] / maxVal) * 76);
+    const expH = Math.round((expenses[i] / maxVal) * 76);
+    chart.innerHTML += `<div class="bar-col">
+      <div style="display:flex;gap:2px;align-items:flex-end;height:76px;">
+        <div class="bar" style="height:${incH}px;width:10px;" title="Renda R$ ${income[i]}"></div>
+        <div class="bar expenses" style="height:${expH}px;width:10px;" title="Gastos R$ ${expenses[i]}"></div>
+      </div>
+    </div>`;
+    labels.innerHTML += `<div style="flex:1;text-align:center;font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;">${m}</div>`;
+  });
+}
+
+function nav(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('p-' + page).classList.add('active');
+  const items = document.querySelectorAll('.nav-item');
+  items.forEach(item => { if (item.getAttribute('onclick') && item.getAttribute('onclick').includes("'" + page + "'")) item.classList.add('active'); });
+  if (page === 'transacoes') renderTransactions();
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function closeModalOutside(e, id) { if (e.target === document.getElementById(id)) closeModal(id); }
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+buildChart();
+renderTransactions();
+</script>
+</body>
+</html>
