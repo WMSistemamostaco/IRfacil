@@ -3,347 +3,386 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IR Fácil — Declaração Simplificada</title>
+<title>IRFácil — Declaração Simplificada</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
-  :root {
-    --bg: #0f0f11;
-    --bg2: #17171a;
-    --bg3: #1e1e22;
-    --bg4: #26262b;
-    --border: rgba(255,255,255,0.07);
-    --border2: rgba(255,255,255,0.13);
-    --text: #f0f0f2;
-    --text2: #9999a8;
-    --text3: #5a5a6a;
-    --accent: #5b8cff;
-    --accent2: #3d6eea;
-    --green: #3ecf8e;
-    --green2: #1a7a52;
-    --amber: #f5a623;
-    --red: #ff5a5a;
-    --purple: #a78bfa;
-    --teal: #2dd4bf;
-    --radius: 12px;
-    --radius-sm: 8px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Sora', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    font-size: 14px;
-    line-height: 1.6;
-  }
+:root {
+  --bg:#0f0f11; --bg2:#17171a; --bg3:#1e1e22; --bg4:#26262b;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.13);
+  --text:#f0f0f2; --text2:#9999a8; --text3:#5a5a6a;
+  --accent:#5b8cff; --accent2:#3d6eea;
+  --green:#3ecf8e; --amber:#f5a623; --red:#ff5a5a;
+  --purple:#a78bfa; --teal:#2dd4bf;
+  --r:12px; --rsm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6}
 
-  /* LAYOUT */
-  .layout { display: flex; min-height: 100vh; }
+/* ─── LOGIN ─────────────────────────────────────────── */
+#loginScreen{
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;padding:24px;
+  background:radial-gradient(ellipse at 30% 20%, rgba(91,140,255,0.07) 0%, transparent 60%),
+             radial-gradient(ellipse at 80% 80%, rgba(167,139,250,0.05) 0%, transparent 50%);
+}
+.login-box{
+  width:100%;max-width:400px;
+  background:var(--bg2);border:1px solid var(--border2);
+  border-radius:20px;padding:40px 36px;
+}
+.login-logo{text-align:center;margin-bottom:32px}
+.login-logo h1{font-size:28px;font-weight:600;letter-spacing:-1px}
+.login-logo h1 span{color:var(--accent)}
+.login-logo p{font-size:12px;color:var(--text3);margin-top:4px;font-family:'DM Mono',monospace}
+.login-tabs{display:flex;background:var(--bg3);border-radius:var(--rsm);padding:3px;margin-bottom:24px;gap:3px}
+.login-tab{flex:1;text-align:center;padding:8px;border-radius:6px;font-size:13px;cursor:pointer;color:var(--text3);transition:all .15s}
+.login-tab.active{background:var(--bg2);color:var(--text);border:1px solid var(--border2)}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:11px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em;font-family:'DM Mono',monospace}
+.field input{
+  width:100%;background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--rsm);padding:10px 14px;color:var(--text);
+  font-size:13px;font-family:'Sora',sans-serif;transition:border-color .15s;outline:none
+}
+.field input:focus{border-color:var(--accent)}
+.btn-full{
+  width:100%;padding:12px;border-radius:var(--rsm);border:none;
+  background:var(--accent);color:#fff;font-size:14px;font-weight:500;
+  font-family:'Sora',sans-serif;cursor:pointer;transition:background .15s;margin-top:4px
+}
+.btn-full:hover{background:var(--accent2)}
+.login-divider{text-align:center;color:var(--text3);font-size:11px;margin:16px 0;position:relative}
+.login-divider::before,.login-divider::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:var(--border)}
+.login-divider::before{left:0} .login-divider::after{right:0}
+.login-note{font-size:11px;color:var(--text3);text-align:center;margin-top:16px;line-height:1.6}
+.login-note a{color:var(--accent);text-decoration:none}
+#loginError{display:none;background:rgba(255,90,90,.08);border:1px solid rgba(255,90,90,.2);border-radius:var(--rsm);padding:10px 14px;font-size:12px;color:var(--red);margin-bottom:14px}
 
-  /* SIDEBAR */
-  .sidebar {
-    width: 240px;
-    min-width: 240px;
-    background: var(--bg2);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    padding: 24px 0;
-    position: sticky;
-    top: 0;
-    height: 100vh;
-  }
-  .logo {
-    padding: 0 24px 24px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 16px;
-  }
-  .logo h1 { font-size: 18px; font-weight: 600; letter-spacing: -0.5px; }
-  .logo h1 span { color: var(--accent); }
-  .logo p { font-size: 11px; color: var(--text3); margin-top: 2px; font-family: 'DM Mono', monospace; }
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 24px;
-    color: var(--text2);
-    cursor: pointer;
-    border-radius: 0;
-    transition: all 0.15s;
-    font-size: 13px;
-    font-weight: 400;
-    border-left: 2px solid transparent;
-    user-select: none;
-  }
-  .nav-item:hover { color: var(--text); background: var(--bg3); }
-  .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(91,140,255,0.06); }
-  .nav-icon { font-size: 16px; width: 20px; text-align: center; }
-  .nav-section { padding: 16px 24px 6px; font-size: 10px; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; font-family: 'DM Mono', monospace; }
-  .sidebar-footer { margin-top: auto; padding: 16px 24px; border-top: 1px solid var(--border); }
-  .year-badge {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 8px 12px;
-    font-size: 12px;
-  }
-  .year-badge span { color: var(--text2); }
-  .year-badge strong { color: var(--accent); font-family: 'DM Mono', monospace; }
-  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); }
+/* ─── APP LAYOUT ─────────────────────────────────────── */
+#appScreen{display:none}
+.layout{display:flex;min-height:100vh}
+.sidebar{
+  width:240px;min-width:240px;background:var(--bg2);
+  border-right:1px solid var(--border);display:flex;
+  flex-direction:column;padding:24px 0;
+  position:sticky;top:0;height:100vh;overflow-y:auto
+}
+.logo{padding:0 24px 20px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.logo h1{font-size:17px;font-weight:600;letter-spacing:-.5px}
+.logo h1 span{color:var(--accent)}
+.logo p{font-size:10px;color:var(--text3);margin-top:2px;font-family:'DM Mono',monospace}
+.user-chip{
+  display:flex;align-items:center;gap:8px;
+  padding:0 24px 16px;border-bottom:1px solid var(--border);margin-bottom:16px
+}
+.user-avatar{
+  width:32px;height:32px;border-radius:50%;
+  background:rgba(91,140,255,.15);border:1px solid rgba(91,140,255,.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:600;color:var(--accent);flex-shrink:0
+}
+.user-name{font-size:12px;font-weight:500;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.user-role{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace}
+.nav-section{padding:14px 24px 5px;font-size:10px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;font-family:'DM Mono',monospace}
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:9px 24px;
+  color:var(--text2);cursor:pointer;transition:all .15s;font-size:13px;
+  border-left:2px solid transparent;user-select:none
+}
+.nav-item:hover{color:var(--text);background:var(--bg3)}
+.nav-item.active{color:var(--accent);border-left-color:var(--accent);background:rgba(91,140,255,.06)}
+.nav-icon{font-size:15px;width:18px;text-align:center}
+.sidebar-footer{margin-top:auto;padding:16px 24px;border-top:1px solid var(--border)}
+.year-badge{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--rsm);padding:8px 12px;font-size:12px
+}
+.year-badge span{color:var(--text2)}
+.year-badge strong{color:var(--accent);font-family:'DM Mono',monospace}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 5px var(--green)}
+.btn-logout{
+  width:100%;margin-top:10px;padding:8px;border-radius:var(--rsm);
+  background:transparent;color:var(--text3);border:1px solid var(--border);
+  font-size:12px;font-family:'Sora',sans-serif;cursor:pointer;transition:all .15s
+}
+.btn-logout:hover{color:var(--red);border-color:rgba(255,90,90,.3)}
 
-  /* MAIN */
-  .main { flex: 1; overflow-y: auto; }
-  .page { display: none; padding: 32px; max-width: 1100px; }
-  .page.active { display: block; }
+/* ─── MAIN ───────────────────────────────────────────── */
+.main{flex:1;overflow-y:auto}
+.page{display:none;padding:32px;max-width:1120px}
+.page.active{display:block}
+.page-header{margin-bottom:26px}
+.page-header h2{font-size:21px;font-weight:600;letter-spacing:-.5px}
+.page-header p{color:var(--text2);font-size:13px;margin-top:4px}
+.header-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
 
-  /* PAGE HEADER */
-  .page-header { margin-bottom: 28px; }
-  .page-header h2 { font-size: 22px; font-weight: 600; letter-spacing: -0.5px; }
-  .page-header p { color: var(--text2); font-size: 13px; margin-top: 4px; }
-  .header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+/* ─── CARDS / GRIDS ──────────────────────────────────── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:20px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.metric{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px 20px}
+.metric-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;font-family:'DM Mono',monospace}
+.metric-value{font-size:24px;font-weight:600;margin-top:4px;letter-spacing:-1px;font-family:'DM Mono',monospace}
+.metric-sub{font-size:11px;color:var(--text3);margin-top:3px}
+.section-title{font-size:12px;font-weight:500;margin-bottom:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;font-family:'DM Mono',monospace}
 
-  /* CARDS */
-  .card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-  }
-  .card-sm { padding: 16px; }
+/* ─── BUTTONS ────────────────────────────────────────── */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 16px;border-radius:var(--rsm);font-size:12px;
+  font-weight:500;cursor:pointer;transition:all .15s;border:none;
+  font-family:'Sora',sans-serif;white-space:nowrap
+}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent2)}
+.btn-ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border)}
+.btn-ghost:hover{color:var(--text);border-color:var(--border2)}
+.btn-danger{background:rgba(255,90,90,.08);color:var(--red);border:1px solid rgba(255,90,90,.2)}
+.btn-danger:hover{background:rgba(255,90,90,.15)}
+.btn-sm{padding:6px 12px;font-size:11px}
 
-  /* GRID */
-  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+/* ─── PILLS / TAGS ───────────────────────────────────── */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500}
+.pill.connected{background:rgba(62,207,142,.1);color:var(--green);border:1px solid rgba(62,207,142,.2)}
+.pill.pending{background:rgba(245,166,35,.1);color:var(--amber);border:1px solid rgba(245,166,35,.2)}
+.cat-pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:11px}
+.cat-saude{background:rgba(45,212,191,.1);color:var(--teal)}
+.cat-alimentacao{background:rgba(62,207,142,.1);color:var(--green)}
+.cat-educacao{background:rgba(91,140,255,.1);color:var(--accent)}
+.cat-moradia{background:rgba(245,166,35,.1);color:var(--amber)}
+.cat-transporte{background:rgba(167,139,250,.1);color:var(--purple)}
+.cat-renda{background:rgba(62,207,142,.08);color:var(--green)}
+.cat-outros{background:var(--bg4);color:var(--text2)}
 
-  /* METRIC CARD */
-  .metric { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; }
-  .metric-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; font-family: 'DM Mono', monospace; }
-  .metric-value { font-size: 26px; font-weight: 600; margin-top: 4px; letter-spacing: -1px; font-family: 'DM Mono', monospace; }
-  .metric-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
-  .metric-sub .up { color: var(--green); }
-  .metric-sub .down { color: var(--red); }
+/* ─── TABLE ──────────────────────────────────────────── */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{text-align:left;padding:10px 12px;color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:.06em;font-family:'DM Mono',monospace;font-weight:400;border-bottom:1px solid var(--border)}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+tbody tr:hover{background:var(--bg3)}
+tbody tr:last-child{border-bottom:none}
+tbody td{padding:10px 12px}
+.td-mono{font-family:'DM Mono',monospace;font-size:12px}
 
-  /* FONTE CARDS */
-  .fonte-card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    transition: border-color 0.2s;
-  }
-  .fonte-card:hover { border-color: var(--border2); }
-  .fonte-header { display: flex; align-items: center; gap: 12px; }
-  .fonte-icon {
-    width: 40px; height: 40px; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px; flex-shrink: 0;
-  }
-  .fonte-icon.nota { background: rgba(45,212,191,0.12); }
-  .fonte-icon.banco { background: rgba(91,140,255,0.12); }
-  .fonte-icon.caixa { background: rgba(245,166,35,0.12); }
-  .fonte-icon.cartao { background: rgba(167,139,250,0.12); }
-  .fonte-name { font-size: 14px; font-weight: 500; }
-  .fonte-desc { font-size: 11px; color: var(--text3); }
-  .fonte-status { display: flex; align-items: center; gap: 6px; font-size: 12px; }
-  .pill {
-    display: inline-flex; align-items: center; gap: 4px;
-    padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500;
-  }
-  .pill.connected { background: rgba(62,207,142,0.1); color: var(--green); border: 1px solid rgba(62,207,142,0.2); }
-  .pill.pending { background: rgba(245,166,35,0.1); color: var(--amber); border: 1px solid rgba(245,166,35,0.2); }
-  .pill.disconnected { background: rgba(255,90,90,0.1); color: var(--red); border: 1px solid rgba(255,90,90,0.2); }
-  .fonte-last { font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; }
-  .btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 8px 16px; border-radius: var(--radius-sm);
-    font-size: 12px; font-weight: 500; cursor: pointer;
-    transition: all 0.15s; border: none; font-family: 'Sora', sans-serif;
-    white-space: nowrap;
-  }
-  .btn-primary { background: var(--accent); color: #fff; }
-  .btn-primary:hover { background: var(--accent2); }
-  .btn-ghost { background: var(--bg3); color: var(--text2); border: 1px solid var(--border); }
-  .btn-ghost:hover { color: var(--text); border-color: var(--border2); }
-  .btn-danger { background: rgba(255,90,90,0.1); color: var(--red); border: 1px solid rgba(255,90,90,0.2); }
-  .btn-danger:hover { background: rgba(255,90,90,0.2); }
-  .btn-sm { padding: 6px 12px; font-size: 11px; }
+/* ─── TABS ───────────────────────────────────────────── */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:20px}
+.tab{padding:8px 16px;font-size:13px;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
 
-  /* PROGRESS BAR */
-  .progress-bar { height: 4px; background: var(--bg4); border-radius: 2px; overflow: hidden; }
-  .progress-fill { height: 100%; border-radius: 2px; transition: width 0.4s; }
+/* ─── ALERT ──────────────────────────────────────────── */
+.alert{padding:12px 16px;border-radius:var(--rsm);font-size:12px;display:flex;gap:10px;align-items:flex-start;margin-bottom:14px}
+.alert-info{background:rgba(91,140,255,.08);border:1px solid rgba(91,140,255,.2);color:var(--text2)}
+.alert-success{background:rgba(62,207,142,.08);border:1px solid rgba(62,207,142,.2);color:var(--text2)}
+.alert-warn{background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.2);color:var(--text2)}
 
-  /* TABLE */
-  .table-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  thead th { text-align: left; padding: 10px 12px; color: var(--text3); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; font-family: 'DM Mono', monospace; font-weight: 400; border-bottom: 1px solid var(--border); }
-  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
-  tbody tr:hover { background: var(--bg3); }
-  tbody tr:last-child { border-bottom: none; }
-  tbody td { padding: 10px 12px; }
-  .td-mono { font-family: 'DM Mono', monospace; font-size: 12px; }
-  .cat-pill {
-    display: inline-flex; align-items: center;
-    padding: 2px 8px; border-radius: 4px; font-size: 11px;
-  }
-  .cat-saude { background: rgba(45,212,191,0.1); color: var(--teal); }
-  .cat-alimentacao { background: rgba(62,207,142,0.1); color: var(--green); }
-  .cat-educacao { background: rgba(91,140,255,0.1); color: var(--accent); }
-  .cat-moradia { background: rgba(245,166,35,0.1); color: var(--amber); }
-  .cat-transporte { background: rgba(167,139,250,0.1); color: var(--purple); }
-  .cat-outros { background: var(--bg4); color: var(--text2); }
-  .cat-financiamento { background: rgba(245,166,35,0.1); color: var(--amber); }
+/* ─── IMPORT ZONE ────────────────────────────────────── */
+.import-zone{
+  border:2px dashed var(--border2);border-radius:var(--r);
+  padding:40px 24px;text-align:center;cursor:pointer;transition:all .2s;
+  position:relative
+}
+.import-zone:hover,.import-zone.drag-over{border-color:var(--accent);background:rgba(91,140,255,.04)}
+.import-zone .icon{font-size:36px;margin-bottom:10px}
+.import-zone h4{font-size:15px;font-weight:500;margin-bottom:6px}
+.import-zone p{font-size:12px;color:var(--text3)}
+.import-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
 
-  /* SECTION TITLE */
-  .section-title { font-size: 13px; font-weight: 500; margin-bottom: 12px; color: var(--text2); }
+/* ─── PROGRESS ───────────────────────────────────────── */
+.progress-wrap{margin-top:16px;display:none}
+.progress-wrap.show{display:block}
+.progress-bar{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;border-radius:2px;background:var(--accent);transition:width .3s;width:0%}
+.progress-label{font-size:11px;color:var(--text3);margin-top:6px;font-family:'DM Mono',monospace}
 
-  /* OPEN FINANCE CONNECT */
-  .openf-banner {
-    background: linear-gradient(135deg, rgba(91,140,255,0.08), rgba(167,139,250,0.08));
-    border: 1px solid rgba(91,140,255,0.2);
-    border-radius: var(--radius);
-    padding: 20px 24px;
-    display: flex; align-items: center; gap: 20px;
-    flex-wrap: wrap;
-    margin-bottom: 24px;
-  }
-  .openf-icon { font-size: 32px; flex-shrink: 0; }
-  .openf-text { flex: 1; }
-  .openf-text h3 { font-size: 15px; font-weight: 600; color: var(--accent); }
-  .openf-text p { font-size: 12px; color: var(--text2); margin-top: 4px; }
+/* ─── IMPORT RESULT ──────────────────────────────────── */
+.import-result{
+  background:var(--bg3);border:1px solid var(--border2);
+  border-radius:var(--r);padding:16px 20px;margin-top:16px;
+  display:none
+}
+.import-result.show{display:block}
+.ir-stat{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px}
+.ir-stat:last-child{border-bottom:none}
+.ir-stat .lbl{color:var(--text2)}
+.ir-stat .val{font-family:'DM Mono',monospace;color:var(--text)}
 
-  /* MODAL */
-  .modal-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.75); backdrop-filter: blur(4px);
-    z-index: 100; align-items: center; justify-content: center;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal {
-    background: var(--bg2); border: 1px solid var(--border2);
-    border-radius: 16px; padding: 28px; width: 100%; max-width: 480px;
-    margin: 16px;
-  }
-  .modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
-  .modal p { font-size: 13px; color: var(--text2); margin-bottom: 20px; }
-  .modal-close { float: right; background: none; border: none; color: var(--text3); font-size: 20px; cursor: pointer; line-height: 1; }
-  .input-group { margin-bottom: 14px; }
-  .input-group label { display: block; font-size: 11px; color: var(--text3); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em; font-family: 'DM Mono', monospace; }
-  .input-group input, .input-group select {
-    width: 100%; background: var(--bg3); border: 1px solid var(--border);
-    border-radius: var(--radius-sm); padding: 9px 12px; color: var(--text);
-    font-size: 13px; font-family: 'Sora', sans-serif; transition: border-color 0.15s;
-  }
-  .input-group input:focus, .input-group select:focus { outline: none; border-color: var(--accent); }
-  .input-group select option { background: var(--bg3); }
-  .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+/* ─── HISTORY ────────────────────────────────────────── */
+.hist-item{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:12px 0;border-bottom:1px solid var(--border)
+}
+.hist-item:last-child{border-bottom:none}
+.hist-icon{
+  width:36px;height:36px;border-radius:var(--rsm);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;background:var(--bg3)
+}
+.hist-name{font-size:13px;font-weight:500}
+.hist-meta{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:2px}
+.hist-badge{
+  margin-left:auto;font-size:11px;font-family:'DM Mono',monospace;
+  color:var(--green);background:rgba(62,207,142,.1);
+  border:1px solid rgba(62,207,142,.2);padding:3px 10px;
+  border-radius:20px;white-space:nowrap;flex-shrink:0
+}
 
-  /* DONUT CHART */
-  .donut-wrap { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
-  .donut-legend { flex: 1; min-width: 160px; }
-  .legend-item { display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: 12px; border-bottom: 1px solid var(--border); }
-  .legend-item:last-child { border-bottom: none; }
-  .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .legend-name { flex: 1; color: var(--text2); }
-  .legend-val { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text); }
-  .legend-pct { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3); min-width: 32px; text-align: right; }
+/* ─── SEARCH ─────────────────────────────────────────── */
+.search-bar{
+  display:flex;align-items:center;gap:8px;background:var(--bg3);
+  border:1px solid var(--border);border-radius:var(--rsm);
+  padding:7px 12px;flex:1;max-width:280px
+}
+.search-bar input{background:none;border:none;outline:none;color:var(--text);font-size:13px;width:100%;font-family:'Sora',sans-serif}
 
-  /* TIMELINE */
-  .timeline { position: relative; padding-left: 24px; }
-  .timeline::before { content: ''; position: absolute; left: 8px; top: 6px; bottom: 6px; width: 1px; background: var(--border); }
-  .tl-item { position: relative; margin-bottom: 16px; }
-  .tl-dot { position: absolute; left: -20px; top: 4px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); }
-  .tl-dot.green { background: var(--green); }
-  .tl-dot.amber { background: var(--amber); }
-  .tl-date { font-size: 10px; color: var(--text3); font-family: 'DM Mono', monospace; }
-  .tl-desc { font-size: 13px; color: var(--text); }
-  .tl-val { font-size: 12px; color: var(--text2); font-family: 'DM Mono', monospace; }
+/* ─── MODAL ──────────────────────────────────────────── */
+.modal-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.75);backdrop-filter:blur(4px);
+  z-index:100;align-items:center;justify-content:center
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:var(--bg2);border:1px solid var(--border2);
+  border-radius:16px;padding:28px;width:100%;max-width:460px;margin:16px
+}
+.modal h3{font-size:16px;font-weight:600;margin-bottom:6px}
+.modal p{font-size:13px;color:var(--text2);margin-bottom:20px}
+.modal-close{float:right;background:none;border:none;color:var(--text3);font-size:22px;cursor:pointer;line-height:1;margin-top:-4px}
+.input-group{margin-bottom:14px}
+.input-group label{display:block;font-size:11px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em;font-family:'DM Mono',monospace}
+.input-group input,.input-group select{
+  width:100%;background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--rsm);padding:9px 12px;color:var(--text);
+  font-size:13px;font-family:'Sora',sans-serif;outline:none;transition:border-color .15s
+}
+.input-group input:focus,.input-group select:focus{border-color:var(--accent)}
+.input-group select option{background:var(--bg3)}
+.modal-actions{display:flex;gap:10px;margin-top:20px}
 
-  /* IR REPORT */
-  .ir-section { margin-bottom: 24px; }
-  .ir-section h4 { font-size: 13px; font-weight: 500; color: var(--text2); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.06em; font-family: 'DM Mono', monospace; }
-  .ir-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
-  .ir-row:last-child { border-bottom: none; }
-  .ir-row.total { font-weight: 600; font-size: 15px; padding-top: 14px; }
-  .ir-row .val { font-family: 'DM Mono', monospace; color: var(--text); }
-  .ir-row.total .val { color: var(--green); font-size: 16px; }
-  .ir-row .label { color: var(--text2); }
-  .ir-row.total .label { color: var(--text); }
-  .deductible { color: var(--green); font-size: 11px; font-family: 'DM Mono', monospace; }
+/* ─── IR REPORT ──────────────────────────────────────── */
+.ir-section{margin-bottom:22px}
+.ir-section h4{font-size:11px;font-weight:500;color:var(--text3);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em;font-family:'DM Mono',monospace}
+.ir-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px}
+.ir-row:last-child{border-bottom:none}
+.ir-row.total{font-weight:600;font-size:14px;padding-top:12px}
+.ir-row .val{font-family:'DM Mono',monospace}
+.ir-row .lbl{color:var(--text2)}
+.ir-row.total .lbl{color:var(--text)}
+.ir-row.total .val{color:var(--green)}
+.deductible-badge{font-size:10px;color:var(--green);font-family:'DM Mono',monospace}
 
-  /* ALERT */
-  .alert { padding: 12px 16px; border-radius: var(--radius-sm); font-size: 12px; display: flex; gap: 10px; align-items: flex-start; margin-bottom: 12px; }
-  .alert-info { background: rgba(91,140,255,0.08); border: 1px solid rgba(91,140,255,0.2); color: var(--text2); }
-  .alert-success { background: rgba(62,207,142,0.08); border: 1px solid rgba(62,207,142,0.2); color: var(--text2); }
-  .alert-warn { background: rgba(245,166,35,0.08); border: 1px solid rgba(245,166,35,0.2); color: var(--text2); }
-  .alert-icon { flex-shrink: 0; font-size: 14px; }
+/* ─── DONUT ──────────────────────────────────────────── */
+.donut-wrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:12px;border-bottom:1px solid var(--border)}
+.legend-item:last-child{border-bottom:none}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.legend-name{flex:1;color:var(--text2)}
+.legend-val{font-family:'DM Mono',monospace;font-size:11px}
+.legend-pct{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);min-width:30px;text-align:right}
 
-  /* TABS */
-  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
-  .tab { padding: 8px 16px; font-size: 13px; cursor: pointer; color: var(--text3); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; }
-  .tab:hover { color: var(--text2); }
-  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+/* ─── BAR CHART ──────────────────────────────────────── */
+.bar-chart{display:flex;gap:5px;align-items:flex-end;height:80px;margin-bottom:6px}
+.bar-col{flex:1;display:flex;gap:2px;align-items:flex-end;height:76px}
+.bar{border-radius:3px 3px 0 0;opacity:.75;min-height:2px;transition:opacity .15s;cursor:pointer}
+.bar:hover{opacity:1}
+.bar.income{background:var(--accent)}
+.bar.expense{background:var(--red)}
 
-  /* MONTH BAR CHART */
-  .bar-chart { display: flex; gap: 6px; align-items: flex-end; height: 80px; margin-bottom: 6px; }
-  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-  .bar { width: 100%; background: var(--accent); border-radius: 3px 3px 0 0; opacity: 0.7; min-height: 2px; transition: opacity 0.15s; cursor: pointer; }
-  .bar:hover { opacity: 1; }
-  .bar.expenses { background: var(--red); }
-  .bar-label { font-size: 9px; color: var(--text3); font-family: 'DM Mono', monospace; }
+/* ─── TOAST ──────────────────────────────────────────── */
+#toast{
+  position:fixed;bottom:24px;right:24px;background:var(--bg2);
+  border:1px solid var(--border2);border-radius:var(--rsm);
+  padding:12px 18px;font-size:13px;z-index:200;
+  transform:translateY(20px);opacity:0;transition:all .3s;
+  pointer-events:none;display:flex;align-items:center;gap:8px;
+  max-width:320px
+}
+#toast.show{transform:translateY(0);opacity:1}
 
-  /* TOAST */
-  #toast {
-    position: fixed; bottom: 24px; right: 24px; background: var(--bg2);
-    border: 1px solid var(--border2); border-radius: var(--radius-sm);
-    padding: 12px 16px; font-size: 13px; z-index: 200;
-    transform: translateY(20px); opacity: 0; transition: all 0.3s;
-    pointer-events: none; display: flex; align-items: center; gap: 8px;
-  }
-  #toast.show { transform: translateY(0); opacity: 1; }
+/* ─── FONTE CARD ─────────────────────────────────────── */
+.fonte-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:12px}
+.fonte-header{display:flex;align-items:center;gap:12px}
+.fonte-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
 
-  /* IMPORT AREA */
-  .import-zone {
-    border: 2px dashed var(--border2); border-radius: var(--radius);
-    padding: 32px; text-align: center; cursor: pointer; transition: all 0.2s;
-  }
-  .import-zone:hover { border-color: var(--accent); background: rgba(91,140,255,0.04); }
-  .import-zone .icon { font-size: 32px; margin-bottom: 8px; }
-  .import-zone h4 { font-size: 14px; font-weight: 500; }
-  .import-zone p { font-size: 12px; color: var(--text3); margin-top: 4px; }
-
-  /* SEARCH */
-  .search-bar {
-    display: flex; align-items: center; gap: 8px;
-    background: var(--bg3); border: 1px solid var(--border);
-    border-radius: var(--radius-sm); padding: 7px 12px;
-    flex: 1; max-width: 280px;
-  }
-  .search-bar input {
-    background: none; border: none; outline: none; color: var(--text);
-    font-size: 13px; width: 100%; font-family: 'Sora', sans-serif;
-  }
-  .search-icon { color: var(--text3); font-size: 14px; }
-
-  /* RESPONSIVE */
-  @media (max-width: 900px) {
-    .grid-4 { grid-template-columns: repeat(2, 1fr); }
-    .grid-3 { grid-template-columns: repeat(2, 1fr); }
-  }
-  @media (max-width: 640px) {
-    .sidebar { display: none; }
-    .page { padding: 16px; }
-    .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
-  }
+/* ─── RESPONSIVE ─────────────────────────────────────── */
+@media(max-width:900px){.grid-4,.grid-3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.sidebar{display:none}.page{padding:16px}.grid-4,.grid-3,.grid-2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
+
+<!-- ════════════════════════════════════════════════════ -->
+<!--  TELA DE LOGIN                                       -->
+<!-- ════════════════════════════════════════════════════ -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <h1>IR<span>Fácil</span></h1>
+      <p>declaração simplificada • ano-base 2025</p>
+    </div>
+
+    <div class="login-tabs">
+      <div class="login-tab active" id="tabLogin" onclick="switchAuthTab('login')">Entrar</div>
+      <div class="login-tab" id="tabRegister" onclick="switchAuthTab('register')">Criar conta</div>
+    </div>
+
+    <!-- ERRO -->
+    <div id="loginError"></div>
+
+    <!-- FORM LOGIN -->
+    <div id="formLogin">
+      <div class="field">
+        <label>E-mail</label>
+        <input type="email" id="loginEmail" placeholder="seu@email.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label>Senha</label>
+        <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="btn-full" onclick="doLogin()">Entrar</button>
+      <div class="login-divider">ou</div>
+      <div class="login-note">
+        Conta demo: <a href="#" onclick="demoLogin()">entrar como visitante</a><br>
+        (dados locais, sem cadastro)
+      </div>
+    </div>
+
+    <!-- FORM REGISTRO -->
+    <div id="formRegister" style="display:none">
+      <div class="field">
+        <label>Nome completo</label>
+        <input type="text" id="regName" placeholder="Seu nome">
+      </div>
+      <div class="field">
+        <label>E-mail</label>
+        <input type="email" id="regEmail" placeholder="seu@email.com">
+      </div>
+      <div class="field">
+        <label>Senha</label>
+        <input type="password" id="regPass" placeholder="Mínimo 6 caracteres">
+      </div>
+      <div class="field">
+        <label>Confirmar senha</label>
+        <input type="password" id="regPass2" placeholder="Repita a senha" onkeydown="if(event.key==='Enter')doRegister()">
+      </div>
+      <button class="btn-full" onclick="doRegister()">Criar conta</button>
+      <div class="login-note" style="margin-top:16px">
+        Dados armazenados localmente no seu navegador.<br>
+        Sem envio para servidores externos.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════ -->
+<!--  APP                                                 -->
+<!-- ════════════════════════════════════════════════════ -->
+<div id="appScreen">
 <div class="layout">
 
   <!-- SIDEBAR -->
@@ -352,711 +391,1239 @@
       <h1>IR<span>Fácil</span></h1>
       <p>declaração simplificada</p>
     </div>
+    <div class="user-chip">
+      <div class="user-avatar" id="userAvatar">?</div>
+      <div>
+        <div class="user-name" id="userName">—</div>
+        <div class="user-role">usuário</div>
+      </div>
+    </div>
 
     <span class="nav-section">visão geral</span>
-    <div class="nav-item active" onclick="nav('dashboard')">
-      <span class="nav-icon">◈</span> Dashboard
-    </div>
-    <div class="nav-item" onclick="nav('transacoes')">
-      <span class="nav-icon">◫</span> Transações
-    </div>
+    <div class="nav-item active" onclick="nav('dashboard')"><span class="nav-icon">◈</span> Dashboard</div>
+    <div class="nav-item" onclick="nav('transacoes')"><span class="nav-icon">◫</span> Transações</div>
 
-    <span class="nav-section">fontes</span>
-    <div class="nav-item" onclick="nav('fontes')">
-      <span class="nav-icon">⬡</span> Conectar Fontes
-    </div>
-    <div class="nav-item" onclick="nav('importar')">
-      <span class="nav-icon">↑</span> Importar Dados
-    </div>
+    <span class="nav-section">importar dados</span>
+    <div class="nav-item" onclick="nav('importar')"><span class="nav-icon">↑</span> Importar Arquivo</div>
+    <div class="nav-item" onclick="nav('fontes')"><span class="nav-icon">⬡</span> Fontes / Open Finance</div>
 
     <span class="nav-section">declaração</span>
-    <div class="nav-item" onclick="nav('relatorio')">
-      <span class="nav-icon">▦</span> Relatório IR
-    </div>
-    <div class="nav-item" onclick="nav('deducoes')">
-      <span class="nav-icon">◎</span> Deduções
-    </div>
+    <div class="nav-item" onclick="nav('relatorio')"><span class="nav-icon">▦</span> Relatório IR</div>
+    <div class="nav-item" onclick="nav('deducoes')"><span class="nav-icon">◎</span> Deduções</div>
 
     <div class="sidebar-footer">
       <div class="year-badge">
         <div><span>Ano-base</span><br><strong>2025</strong></div>
         <div class="status-dot"></div>
       </div>
+      <button class="btn-logout" onclick="doLogout()">↩ Sair da conta</button>
     </div>
   </aside>
 
-  <!-- MAIN CONTENT -->
+  <!-- MAIN -->
   <main class="main">
 
-    <!-- DASHBOARD -->
+    <!-- ── DASHBOARD ─────────────────────────────────── -->
     <div id="p-dashboard" class="page active">
       <div class="page-header header-row">
         <div>
           <h2>Dashboard</h2>
-          <p>Resumo financeiro para declaração do IR 2026 (ano-base 2025)</p>
+          <p>Resumo financeiro — IR 2026 (ano-base 2025)</p>
         </div>
-        <button class="btn btn-primary" onclick="nav('relatorio')">▦ Gerar Relatório IR</button>
+        <button class="btn btn-primary" onclick="nav('relatorio')">▦ Relatório IR</button>
       </div>
 
-      <div class="grid-4" style="margin-bottom: 20px;">
+      <div class="grid-4" style="margin-bottom:20px">
         <div class="metric">
           <div class="metric-label">Renda Bruta</div>
-          <div class="metric-value" style="color: var(--green);">72.480</div>
-          <div class="metric-sub">R$ anual • <span class="up">▲ salário + extras</span></div>
+          <div class="metric-value" style="color:var(--green)" id="m-renda">0</div>
+          <div class="metric-sub">R$ • salários + créditos</div>
         </div>
         <div class="metric">
           <div class="metric-label">Total Gastos</div>
-          <div class="metric-value">48.230</div>
-          <div class="metric-sub">R$ registrados em 2025</div>
+          <div class="metric-value" id="m-gastos">0</div>
+          <div class="metric-sub">R$ registrados</div>
         </div>
         <div class="metric">
           <div class="metric-label">Dedutível IR</div>
-          <div class="metric-value" style="color: var(--accent);">14.820</div>
-          <div class="metric-sub">R$ estimado • <span class="up">saúde + educação</span></div>
+          <div class="metric-value" style="color:var(--accent)" id="m-dedutivel">0</div>
+          <div class="metric-sub">R$ estimado</div>
         </div>
         <div class="metric">
           <div class="metric-label">Transações</div>
-          <div class="metric-value">1.247</div>
-          <div class="metric-sub">de 4 fontes conectadas</div>
+          <div class="metric-value" id="m-count">0</div>
+          <div class="metric-sub" id="m-fontes-count">de 0 fontes</div>
         </div>
       </div>
 
-      <div class="grid-2" style="margin-bottom: 20px;">
-
-        <!-- GASTOS POR CATEGORIA -->
+      <div class="grid-2" style="margin-bottom:20px">
         <div class="card">
-          <div class="section-title">Gastos por categoria — 2025</div>
-          <div class="donut-wrap">
-            <svg width="120" height="120" viewBox="0 0 120 120">
-              <circle cx="60" cy="60" r="50" fill="none" stroke="var(--bg3)" stroke-width="18"/>
-              <!-- Saúde 18% -->
-              <circle cx="60" cy="60" r="50" fill="none" stroke="#2dd4bf" stroke-width="18"
-                stroke-dasharray="56.5 257.1" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
-              <!-- Alimentação 26% -->
-              <circle cx="60" cy="60" r="50" fill="none" stroke="#3ecf8e" stroke-width="18"
-                stroke-dasharray="81.7 231.9" stroke-dashoffset="-56.5" transform="rotate(-90 60 60)"/>
-              <!-- Moradia/Financ 31% -->
-              <circle cx="60" cy="60" r="50" fill="none" stroke="#f5a623" stroke-width="18"
-                stroke-dasharray="97.4 216.2" stroke-dashoffset="-138.2" transform="rotate(-90 60 60)"/>
-              <!-- Educação 8% -->
-              <circle cx="60" cy="60" r="50" fill="none" stroke="#5b8cff" stroke-width="18"
-                stroke-dasharray="25.1 288.5" stroke-dashoffset="-235.6" transform="rotate(-90 60 60)"/>
-              <!-- Outros 17% -->
-              <circle cx="60" cy="60" r="50" fill="none" stroke="var(--bg4)" stroke-width="18"
-                stroke-dasharray="53.4 260.2" stroke-dashoffset="-260.7" transform="rotate(-90 60 60)"/>
-              <text x="60" y="56" text-anchor="middle" font-size="10" fill="var(--text3)" font-family="DM Mono">total</text>
-              <text x="60" y="70" text-anchor="middle" font-size="13" fill="var(--text)" font-family="DM Mono" font-weight="500">48.2k</text>
-            </svg>
-            <div class="donut-legend">
-              <div class="legend-item"><div class="legend-dot" style="background:#2dd4bf"></div><span class="legend-name">Saúde</span><span class="legend-val">R$ 8.682</span><span class="legend-pct">18%</span></div>
-              <div class="legend-item"><div class="legend-dot" style="background:#3ecf8e"></div><span class="legend-name">Alimentação</span><span class="legend-val">R$ 12.540</span><span class="legend-pct">26%</span></div>
-              <div class="legend-item"><div class="legend-dot" style="background:#f5a623"></div><span class="legend-name">Moradia/Financ.</span><span class="legend-val">R$ 14.951</span><span class="legend-pct">31%</span></div>
-              <div class="legend-item"><div class="legend-dot" style="background:#5b8cff"></div><span class="legend-name">Educação</span><span class="legend-val">R$ 3.858</span><span class="legend-pct">8%</span></div>
-              <div class="legend-item"><div class="legend-dot" style="background:var(--bg4)"></div><span class="legend-name">Outros</span><span class="legend-val">R$ 8.199</span><span class="legend-pct">17%</span></div>
-            </div>
-          </div>
+          <div class="section-title">Gastos por categoria</div>
+          <div id="donutArea"></div>
         </div>
-
-        <!-- EVOLUÇÃO MENSAL -->
         <div class="card">
-          <div class="section-title">Gastos mensais — 2025</div>
-          <div class="bar-chart" id="monthChart"></div>
-          <div style="display:flex; gap:6px; justify-content:space-between;" id="monthLabels"></div>
-          <div style="display:flex; gap:12px; margin-top:10px;">
-            <span style="font-size:11px; color:var(--text3); display:flex; align-items:center; gap:4px;"><span style="width:8px;height:8px;background:var(--accent);border-radius:2px;display:inline-block;opacity:.7"></span> Renda</span>
-            <span style="font-size:11px; color:var(--text3); display:flex; align-items:center; gap:4px;"><span style="width:8px;height:8px;background:var(--red);border-radius:2px;display:inline-block;opacity:.7"></span> Gastos</span>
+          <div class="section-title">Evolução mensal</div>
+          <div class="bar-chart" id="barChart"></div>
+          <div style="display:flex;gap:5px;justify-content:space-between" id="barLabels"></div>
+          <div style="display:flex;gap:12px;margin-top:8px">
+            <span style="font-size:11px;color:var(--text3);display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;background:var(--accent);border-radius:2px;display:inline-block;opacity:.75"></span>Renda</span>
+            <span style="font-size:11px;color:var(--text3);display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;background:var(--red);border-radius:2px;display:inline-block;opacity:.75"></span>Gastos</span>
           </div>
         </div>
       </div>
 
-      <!-- FONTES STATUS -->
-      <div class="section-title">Status das fontes conectadas</div>
-      <div class="grid-4">
-        <div class="fonte-card">
-          <div class="fonte-header">
-            <div class="fonte-icon nota">🧾</div>
-            <div>
-              <div class="fonte-name">Nota Paraná</div>
-              <div class="fonte-desc">Notas fiscais CPF</div>
-            </div>
-          </div>
-          <div class="pill connected">● Conectado</div>
-          <div style="font-size:11px;color:var(--text3);">387 notas · R$ 12.540</div>
-        </div>
-        <div class="fonte-card">
-          <div class="fonte-header">
-            <div class="fonte-icon banco">🏦</div>
-            <div>
-              <div class="fonte-name">Banco Principal</div>
-              <div class="fonte-desc">Conta corrente + cartão</div>
-            </div>
-          </div>
-          <div class="pill connected">● Conectado</div>
-          <div style="font-size:11px;color:var(--text3);">642 transações · R$ 38.420</div>
-        </div>
-        <div class="fonte-card">
-          <div class="fonte-header">
-            <div class="fonte-icon caixa">🏗️</div>
-            <div>
-              <div class="fonte-name">Caixa Econômica</div>
-              <div class="fonte-desc">Financiamento imóvel</div>
-            </div>
-          </div>
-          <div class="pill connected">● Conectado</div>
-          <div style="font-size:11px;color:var(--text3);">12 parcelas · R$ 14.951</div>
-        </div>
-        <div class="fonte-card">
-          <div class="fonte-header">
-            <div class="fonte-icon cartao">🛒</div>
-            <div>
-              <div class="fonte-name">Cartão Loja Online</div>
-              <div class="fonte-desc">App de compras</div>
-            </div>
-          </div>
-          <div class="pill pending">◑ Sincronizando</div>
-          <div style="font-size:11px;color:var(--text3);">218 transações · R$ 6.840</div>
-        </div>
+      <div class="alert alert-info" id="dashEmptyAlert" style="display:none">
+        <span>ℹ</span>
+        <span>Nenhuma transação ainda. <a href="#" onclick="nav('importar')" style="color:var(--accent)">Importe um arquivo</a> para começar.</span>
       </div>
     </div>
 
-    <!-- FONTES -->
-    <div id="p-fontes" class="page">
-      <div class="page-header header-row">
+    <!-- ── IMPORTAR ───────────────────────────────────── -->
+    <div id="p-importar" class="page">
+      <div class="page-header">
+        <h2>Importar Arquivo</h2>
+        <p>Carregue extratos PDF, planilhas CSV ou Excel dos seus bancos e apps</p>
+      </div>
+
+      <div class="alert alert-info">
+        <span>ℹ</span>
+        <span>Todo processamento é feito <strong>localmente no seu navegador</strong>. Nenhum arquivo é enviado para servidores externos. Seus dados ficam no dispositivo.</span>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:24px">
+        <!-- DROP ZONE -->
         <div>
-          <h2>Conectar Fontes</h2>
-          <p>Via Open Finance (consentimento seguro) e APIs oficiais</p>
+          <div class="section-title">Carregar arquivo</div>
+          <div class="import-zone" id="dropZone">
+            <input type="file" id="fileInput" accept=".pdf,.csv,.xlsx,.xls" onchange="handleFileSelect(this.files[0])">
+            <div class="icon">📂</div>
+            <h4>Arraste ou clique para selecionar</h4>
+            <p>PDF • CSV • XLSX • XLS</p>
+          </div>
+
+          <!-- PROGRESS -->
+          <div class="progress-wrap" id="progressWrap">
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="progress-label" id="progressLabel">Processando...</div>
+          </div>
+
+          <!-- RESULTADO -->
+          <div class="import-result" id="importResult">
+            <div class="ir-stat"><span class="lbl">Arquivo</span><span class="val" id="res-file">—</span></div>
+            <div class="ir-stat"><span class="lbl">Transações encontradas</span><span class="val" id="res-count" style="color:var(--green)">0</span></div>
+            <div class="ir-stat"><span class="lbl">Total importado</span><span class="val" id="res-total">R$ 0,00</span></div>
+            <div class="ir-stat"><span class="lbl">Possíveis deduções</span><span class="val" id="res-ded" style="color:var(--accent)">0 itens</span></div>
+            <button class="btn btn-primary" style="margin-top:14px;width:100%" onclick="nav('transacoes')">Ver transações →</button>
+          </div>
+
+          <!-- MODELO -->
+          <button class="btn btn-ghost" style="margin-top:12px;width:100%" onclick="downloadTemplate()">📥 Baixar modelo CSV</button>
         </div>
-        <button class="btn btn-primary" onclick="openModal('modal-connect')">+ Adicionar Fonte</button>
+
+        <!-- DICAS POR BANCO -->
+        <div>
+          <div class="section-title">Como exportar do seu banco</div>
+          <div style="display:flex;flex-direction:column;gap:8px" id="bankTips">
+
+            <div class="card" style="padding:14px 16px">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                <span style="font-size:18px">🏦</span>
+                <strong style="font-size:13px">Banco do Brasil / Bradesco / Itaú</strong>
+              </div>
+              <p style="font-size:12px;color:var(--text2);line-height:1.6">App → Extrato → Período → Exportar → CSV ou OFX. Renomeie para <code style="background:var(--bg4);padding:1px 5px;border-radius:3px;font-size:11px">.csv</code> se necessário.</p>
+            </div>
+
+            <div class="card" style="padding:14px 16px">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                <span style="font-size:18px">🧡</span>
+                <strong style="font-size:13px">Nubank / Inter / C6 Bank</strong>
+              </div>
+              <p style="font-size:12px;color:var(--text2);line-height:1.6">App → Perfil → Extrato / Fatura → Exportar PDF ou CSV. Fatura do cartão também é aceita.</p>
+            </div>
+
+            <div class="card" style="padding:14px 16px">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                <span style="font-size:18px">🏗️</span>
+                <strong style="font-size:13px">Caixa Econômica Federal</strong>
+              </div>
+              <p style="font-size:12px;color:var(--text2);line-height:1.6">App Caixa Tem ou site → Financiamento → Demonstrativo de pagamentos → PDF. Importe o PDF anual.</p>
+            </div>
+
+            <div class="card" style="padding:14px 16px">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                <span style="font-size:18px">🧾</span>
+                <strong style="font-size:13px">Nota Paraná</strong>
+              </div>
+              <p style="font-size:12px;color:var(--text2);line-height:1.6">nota.pr.gov.br → Minha Conta → Notas Fiscais → Exportar planilha (XLS/CSV). Selecione o ano 2025.</p>
+            </div>
+
+          </div>
+        </div>
       </div>
 
-      <div class="openf-banner">
-        <div class="openf-icon">🔐</div>
-        <div class="openf-text">
-          <h3>Open Finance Brasil</h3>
-          <p>Suas conexões são feitas via protocolo Open Finance regulamentado pelo Banco Central. Você autoriza o compartilhamento por até 12 meses com revogação a qualquer momento. Nenhuma senha é armazenada.</p>
-        </div>
-        <a href="https://openfinancebrasil.org.br" target="_blank" style="color:var(--accent);font-size:12px;white-space:nowrap;">Saiba mais →</a>
-      </div>
-
-      <div class="grid-2">
-
-        <!-- NOTA PARANÁ -->
-        <div class="fonte-card">
-          <div class="fonte-header">
-            <div class="fonte-icon nota">🧾</div>
-            <div>
-              <div class="fonte-name">Nota Paraná</div>
-              <div class="fonte-desc">Secretaria da Fazenda do Paraná</div>
-            </div>
-            <div style="margin-left:auto"><div class="pill connected">● Ativo</div></div>
-          </div>
-          <div style="font-size:12px;color:var(--text2);">Importa notas fiscais onde seu CPF foi informado na compra. Dados de alimentação, saúde, farmácia e outros estabelecimentos.</div>
-          <div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--green)"></div></div>
-          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);">
-            <span>387 notas importadas</span><span>Última sync: hoje</span>
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="btn btn-ghost btn-sm" onclick="showToast('🔄 Sincronizando Nota Paraná...')">↻ Sincronizar</button>
-            <button class="btn btn-danger btn-sm">Desconectar</button>
-          </div>
-        </div>
-
-        <!-- BANCO PRINCIPAL -->
-        <div class="fonte-card">
-          <div class="fonte-header">
-            <div class="fonte-icon banco">🏦</div>
-            <div>
-              <div class="fonte-name">Banco Principal</div>
-              <div class="fonte-desc">Open Finance · Conta corrente</div>
-            </div>
-            <div style="margin-left:auto"><div class="pill connected">● Ativo</div></div>
-          </div>
-          <div style="font-size:12px;color:var(--text2);">Extrato completo da conta corrente, holerites creditados, transferências e cartão de crédito vinculado. Consentimento autorizado em 15/01/2025.</div>
-          <div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--green)"></div></div>
-          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);">
-            <span>642 transações importadas</span><span>Última sync: ontem</span>
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="btn btn-ghost btn-sm" onclick="showToast('🔄 Sincronizando banco...')">↻ Sincronizar</button>
-            <button class="btn btn-danger btn-sm">Desconectar</button>
-          </div>
-        </div>
-
-        <!-- CAIXA ECONÔMICA -->
-        <div class="fonte-card">
-          <div class="fonte-header">
-            <div class="fonte-icon caixa">🏗️</div>
-            <div>
-              <div class="fonte-name">Caixa Econômica Federal</div>
-              <div class="fonte-desc">Open Finance · Financiamento</div>
-            </div>
-            <div style="margin-left:auto"><div class="pill connected">● Ativo</div></div>
-          </div>
-          <div style="font-size:12px;color:var(--text2);">Parcelas do financiamento imobiliário, composição juros/amortização por parcela, saldo devedor atualizado. Dados essenciais para declarar o imóvel no IR.</div>
-          <div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--green)"></div></div>
-          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);">
-            <span>12 parcelas de 2025</span><span>Contrato: R$ 320.000</span>
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="btn btn-ghost btn-sm" onclick="showToast('🔄 Sincronizando Caixa...')">↻ Sincronizar</button>
-            <button class="btn btn-danger btn-sm">Desconectar</button>
-          </div>
-        </div>
-
-        <!-- CARTÃO ONLINE -->
-        <div class="fonte-card">
-          <div class="fonte-header">
-            <div class="fonte-icon cartao">🛒</div>
-            <div>
-              <div class="fonte-name">Cartão Loja Online</div>
-              <div class="fonte-desc">Open Finance · Em aprovação</div>
-            </div>
-            <div style="margin-left:auto"><div class="pill pending">◑ Pendente</div></div>
-          </div>
-          <div style="font-size:12px;color:var(--text2);">Aguardando confirmação do consentimento no app da operadora. Abra o app do cartão e confirme o compartilhamento de dados via Open Finance.</div>
-          <div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--amber)"></div></div>
-          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);">
-            <span>Consentimento pendente</span><span>Expira em: 2 dias</span>
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="btn btn-primary btn-sm" onclick="showToast('📱 Abra o app do cartão para confirmar')">Confirmar no App</button>
-            <button class="btn btn-danger btn-sm">Cancelar</button>
-          </div>
+      <!-- HISTÓRICO -->
+      <div class="section-title">Histórico de importações</div>
+      <div class="card">
+        <div id="importHistory">
+          <p style="color:var(--text3);font-size:13px;text-align:center;padding:20px 0">Nenhuma importação ainda</p>
         </div>
       </div>
     </div>
 
-    <!-- TRANSAÇÕES -->
+    <!-- ── TRANSAÇÕES ─────────────────────────────────── -->
     <div id="p-transacoes" class="page">
       <div class="page-header header-row">
         <div>
           <h2>Transações</h2>
-          <p>1.247 transações importadas de 4 fontes</p>
+          <p id="transCount">0 transações importadas</p>
         </div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
           <div class="search-bar">
-            <span class="search-icon">⌕</span>
-            <input type="text" placeholder="Buscar transação..." onkeyup="filterTransactions(this.value)">
+            <span style="color:var(--text3)">⌕</span>
+            <input type="text" placeholder="Buscar..." id="searchInput" onkeyup="renderTransactions()">
           </div>
-          <select style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 12px;color:var(--text);font-size:13px;font-family:'Sora',sans-serif;" onchange="filterByCategory(this.value)">
-            <option value="">Todas categorias</option>
-            <option value="Saúde">Saúde</option>
-            <option value="Alimentação">Alimentação</option>
-            <option value="Moradia">Moradia</option>
-            <option value="Educação">Educação</option>
-            <option value="Outros">Outros</option>
+          <select id="catFilter" onchange="renderTransactions()" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--rsm);padding:7px 12px;color:var(--text);font-size:13px;font-family:'Sora',sans-serif;outline:none">
+            <option value="">Todas</option>
+            <option>Renda</option><option>Saúde</option><option>Alimentação</option>
+            <option>Educação</option><option>Moradia</option><option>Transporte</option><option>Outros</option>
           </select>
+          <button class="btn btn-danger btn-sm" onclick="clearTransactions()">🗑 Limpar tudo</button>
         </div>
       </div>
 
       <div class="tabs">
-        <div class="tab active" onclick="setTab(this,'all')">Todas</div>
-        <div class="tab" onclick="setTab(this,'dedutivel')">Dedutíveis IR</div>
-        <div class="tab" onclick="setTab(this,'financiamento')">Financiamento</div>
-        <div class="tab" onclick="setTab(this,'notas')">Notas Fiscais</div>
+        <div class="tab active" id="tab-all" onclick="setTab('all',this)">Todas</div>
+        <div class="tab" id="tab-ded" onclick="setTab('dedutivel',this)">Dedutíveis IR</div>
+        <div class="tab" id="tab-renda" onclick="setTab('renda',this)">Renda</div>
       </div>
 
       <div class="card">
         <div class="table-wrap">
-          <table id="transTable">
+          <table>
             <thead>
               <tr>
-                <th>Data</th>
-                <th>Descrição</th>
-                <th>Fonte</th>
-                <th>Categoria</th>
-                <th>Dedutível</th>
+                <th>Data</th><th>Descrição</th><th>Fonte</th>
+                <th>Categoria</th><th>Dedutível</th>
                 <th style="text-align:right">Valor</th>
+                <th></th>
               </tr>
             </thead>
             <tbody id="transBody"></tbody>
           </table>
         </div>
-      </div>
-    </div>
-
-    <!-- IMPORTAR -->
-    <div id="p-importar" class="page">
-      <div class="page-header">
-        <h2>Importar Dados</h2>
-        <p>Upload manual de extratos PDF ou CSV como alternativa ao Open Finance</p>
-      </div>
-
-      <div class="alert alert-info">
-        <span class="alert-icon">ℹ</span>
-        <span>Para bancos ainda não integrados ao Open Finance, você pode importar extratos em PDF ou planilhas CSV. Os dados são processados localmente e não saem do seu navegador.</span>
-      </div>
-
-      <div class="grid-2" style="margin-bottom:20px;">
-        <div>
-          <div class="section-title">Upload de extrato bancário</div>
-          <div class="import-zone" onclick="showToast('📁 Selecione um arquivo PDF ou CSV')">
-            <div class="icon">📄</div>
-            <h4>Arraste ou clique para importar</h4>
-            <p>Aceita: PDF de extrato, CSV OFX, Excel .xlsx</p>
-          </div>
-        </div>
-        <div>
-          <div class="section-title">Importar do Nota Paraná (manual)</div>
-          <div class="import-zone" onclick="showToast('🧾 Acesse nota.pr.gov.br e exporte seu histórico')">
-            <div class="icon">🧾</div>
-            <h4>Exportar do portal Nota Paraná</h4>
-            <p>Acesse nota.pr.gov.br → Minha Conta → Exportar XML</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="section-title">Histórico de importações</div>
-      <div class="card">
-        <div class="timeline">
-          <div class="tl-item"><div class="tl-dot green"></div>
-            <div class="tl-date">15/03/2025 14:32</div>
-            <div class="tl-desc">Nota Paraná — Jan–Mar 2025</div>
-            <div class="tl-val">142 notas · R$ 4.280</div>
-          </div>
-          <div class="tl-item"><div class="tl-dot green"></div>
-            <div class="tl-date">10/01/2025 09:15</div>
-            <div class="tl-desc">Banco Principal — extrato Dez 2024</div>
-            <div class="tl-val">87 transações · R$ 6.750</div>
-          </div>
-          <div class="tl-item"><div class="tl-dot amber"></div>
-            <div class="tl-date">05/01/2025 11:00</div>
-            <div class="tl-desc">Caixa — extrato 2024 parcial</div>
-            <div class="tl-val">8 parcelas · R$ 9.967</div>
-          </div>
+        <div id="transEmpty" style="text-align:center;padding:32px;color:var(--text3);font-size:13px;display:none">
+          Nenhuma transação encontrada
         </div>
       </div>
     </div>
 
-    <!-- RELATÓRIO IR -->
+    <!-- ── FONTES / OPEN FINANCE ──────────────────────── -->
+    <div id="p-fontes" class="page">
+      <div class="page-header header-row">
+        <div>
+          <h2>Fontes &amp; Open Finance</h2>
+          <p>Conecte seus bancos via Open Finance (em breve) ou importe manualmente</p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('modal-connect')">+ Conectar banco</button>
+      </div>
+
+      <div class="alert alert-warn">
+        <span>⚠</span>
+        <span><strong>Open Finance em desenvolvimento.</strong> A integração direta com bancos via API Open Finance requer cadastro como desenvolvedor no Banco Central e aprovação da instituição. Por enquanto, use a importação de arquivos — funcionalidade 100% disponível.</span>
+      </div>
+
+      <div class="grid-2">
+        <div class="fonte-card">
+          <div class="fonte-header">
+            <div class="fonte-icon" style="background:rgba(45,212,191,.1)">🧾</div>
+            <div><div style="font-size:14px;font-weight:500">Nota Paraná</div><div style="font-size:11px;color:var(--text3)">Secretaria da Fazenda / PR</div></div>
+            <div style="margin-left:auto"><div class="pill pending">⏳ Em breve</div></div>
+          </div>
+          <p style="font-size:12px;color:var(--text2)">API pública SEFA-PR. Importação automática de notas onde seu CPF foi informado. Requer autenticação via gov.br.</p>
+          <button class="btn btn-ghost btn-sm" onclick="showToast('📋 Enquanto isso, exporte manualmente em nota.pr.gov.br')">Como exportar manualmente</button>
+        </div>
+
+        <div class="fonte-card">
+          <div class="fonte-header">
+            <div class="fonte-icon" style="background:rgba(91,140,255,.1)">🏦</div>
+            <div><div style="font-size:14px;font-weight:500">Bancos Open Finance</div><div style="font-size:11px;color:var(--text3)">BCB regulamentado</div></div>
+            <div style="margin-left:auto"><div class="pill pending">⏳ Em breve</div></div>
+          </div>
+          <p style="font-size:12px;color:var(--text2)">Integração via protocolo Open Finance. Nubank, Itaú, Bradesco, Santander, C6, Inter e mais de 800 instituições participantes.</p>
+          <button class="btn btn-ghost btn-sm" onclick="openModal('modal-connect')">Pré-registrar interesse</button>
+        </div>
+
+        <div class="fonte-card">
+          <div class="fonte-header">
+            <div class="fonte-icon" style="background:rgba(245,166,35,.1)">🏗️</div>
+            <div><div style="font-size:14px;font-weight:500">Caixa Econômica</div><div style="font-size:11px;color:var(--text3)">Financiamento imobiliário</div></div>
+            <div style="margin-left:auto"><div class="pill pending">⏳ Em breve</div></div>
+          </div>
+          <p style="font-size:12px;color:var(--text2)">Parcelas, composição juros/amortização, saldo devedor. Essencial para declarar imóvel no IR.</p>
+          <button class="btn btn-ghost btn-sm" onclick="nav('importar')">Importar PDF da Caixa</button>
+        </div>
+
+        <div class="fonte-card">
+          <div class="fonte-header">
+            <div class="fonte-icon" style="background:rgba(167,139,250,.1)">🛒</div>
+            <div><div style="font-size:14px;font-weight:500">Cartões de Loja</div><div style="font-size:11px;color:var(--text3)">Marketplace / e-commerce</div></div>
+            <div style="margin-left:auto"><div class="pill pending">⏳ Em breve</div></div>
+          </div>
+          <p style="font-size:12px;color:var(--text2)">Amazon, Shopee, Mercado Livre e outros. Importação via fatura em PDF ou CSV exportado do app.</p>
+          <button class="btn btn-ghost btn-sm" onclick="nav('importar')">Importar fatura CSV</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RELATÓRIO IR ────────────────────────────────── -->
     <div id="p-relatorio" class="page">
       <div class="page-header header-row">
         <div>
           <h2>Relatório IR 2026</h2>
-          <p>Dados consolidados para declaração — ano-base 2025</p>
+          <p>Consolidado para declaração — ano-base 2025</p>
         </div>
-        <div style="display:flex;gap:8px;">
-          <button class="btn btn-ghost" onclick="showToast('📋 Copiando dados para área de transferência...')">◧ Copiar</button>
-          <button class="btn btn-primary" onclick="showToast('📥 Gerando PDF do relatório...')">↓ Exportar PDF</button>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost" onclick="copyReport()">◧ Copiar</button>
+          <button class="btn btn-primary" onclick="printReport()">↓ Imprimir / PDF</button>
         </div>
       </div>
 
       <div class="alert alert-success">
-        <span class="alert-icon">✓</span>
-        <span>Relatório gerado automaticamente a partir das 4 fontes conectadas. Confira os valores antes de declarar — você pode editar categorias na aba Transações.</span>
+        <span>✓</span>
+        <span>Relatório gerado com base nas transações importadas. Confira os comprovantes originais antes de declarar.</span>
       </div>
 
-      <div class="grid-2">
+      <div class="grid-2" id="reportContent">
         <div>
-          <!-- RENDIMENTOS -->
-          <div class="card" style="margin-bottom:16px;">
+          <div class="card" style="margin-bottom:16px">
             <div class="ir-section">
               <h4>Rendimentos tributáveis</h4>
-              <div class="ir-row"><span class="label">Salário (12 meses)</span><span class="val">R$ 66.000,00</span></div>
-              <div class="ir-row"><span class="label">13º salário</span><span class="val">R$ 5.500,00</span></div>
-              <div class="ir-row"><span class="label">Outros (horas extras)</span><span class="val">R$ 980,00</span></div>
-              <div class="ir-row total"><span class="label">Total rendimentos</span><span class="val">R$ 72.480,00</span></div>
+              <div id="report-renda"></div>
+              <div class="ir-row total"><span class="lbl">Total rendimentos</span><span class="val" id="report-total-renda">R$ 0,00</span></div>
             </div>
           </div>
-
-          <!-- BENS E DIREITOS -->
           <div class="card">
             <div class="ir-section">
-              <h4>Bens e direitos</h4>
-              <div class="ir-row"><span class="label">Imóvel financiado (Caixa)</span><span class="val">R$ 320.000,00</span></div>
-              <div class="ir-row"><span class="label">Saldo pago em 2025</span><span class="val">R$ 14.951,00</span></div>
-              <div class="ir-row"><span class="label">Saldo devedor atual</span><span class="val">R$ 241.320,00</span></div>
+              <h4>Resumo por categoria</h4>
+              <div id="report-cats"></div>
             </div>
           </div>
         </div>
-
         <div>
-          <!-- DEDUÇÕES -->
           <div class="card">
             <div class="ir-section">
-              <h4>Deduções — despesas</h4>
-              <div class="ir-row">
-                <span class="label">Saúde (médico, plano, farmácia)</span>
-                <div style="text-align:right">
-                  <div class="val">R$ 8.682,00</div>
-                  <div class="deductible">✓ dedutível integral</div>
-                </div>
-              </div>
-              <div class="ir-row">
-                <span class="label">Educação (curso, escola)</span>
-                <div style="text-align:right">
-                  <div class="val">R$ 3.561,50</div>
-                  <div class="deductible">✓ até R$ 3.561,50/pessoa</div>
-                </div>
-              </div>
-              <div class="ir-row">
-                <span class="label">Previdência privada (PGBL)</span>
-                <div style="text-align:right">
-                  <div class="val">R$ 2.000,00</div>
-                  <div class="deductible">✓ até 12% renda bruta</div>
-                </div>
-              </div>
-              <div class="ir-row">
-                <span class="label">Dependentes</span>
-                <div style="text-align:right">
-                  <div class="val">R$ 2.275,08</div>
-                  <div class="deductible">✓ R$ 2.275,08/dependente</div>
-                </div>
-              </div>
-              <div class="ir-row">
-                <span class="label">Contribuição INSS</span>
-                <div style="text-align:right">
-                  <div class="val">R$ 7.786,02</div>
-                  <div class="deductible">✓ dedutível integral</div>
-                </div>
-              </div>
-              <div class="ir-row total">
-                <span class="label">Total deduções</span>
-                <span class="val">R$ 24.304,60</span>
-              </div>
+              <h4>Deduções estimadas</h4>
+              <div id="report-deducoes"></div>
+              <div class="ir-row total"><span class="lbl">Total deduções</span><span class="val" id="report-total-ded">R$ 0,00</span></div>
             </div>
-
-            <div style="background:rgba(62,207,142,0.06);border:1px solid rgba(62,207,142,0.15);border-radius:var(--radius-sm);padding:14px;margin-top:12px;">
-              <div style="font-size:11px;color:var(--text3);margin-bottom:4px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;">Base de cálculo estimada</div>
-              <div style="font-size:22px;font-weight:600;font-family:'DM Mono',monospace;color:var(--green);">R$ 48.175,40</div>
-              <div style="font-size:11px;color:var(--text3);margin-top:2px;">R$ 72.480 − R$ 24.304,60 de deduções</div>
+            <div style="background:rgba(62,207,142,.06);border:1px solid rgba(62,207,142,.15);border-radius:var(--rsm);padding:14px;margin-top:14px">
+              <div style="font-size:10px;color:var(--text3);margin-bottom:4px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em">Base de cálculo estimada</div>
+              <div style="font-size:24px;font-weight:600;font-family:'DM Mono',monospace;color:var(--green)" id="report-base">R$ 0,00</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:2px" id="report-base-sub">renda − deduções</div>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="alert alert-warn" style="margin-top:16px;">
-        <span class="alert-icon">⚠</span>
-        <span>Este relatório é uma estimativa com base nos dados importados. Confira os comprovantes originais e consulte um contador para a declaração oficial. Valores sujeitos a alterações da tabela IRPF.</span>
+      <div class="alert alert-warn" style="margin-top:16px">
+        <span>⚠</span>
+        <span>Este relatório é uma estimativa. Consulte um contador para a declaração oficial. Limites de dedução: Educação R$ 3.561,50/pessoa, Previdência até 12% da renda bruta.</span>
       </div>
     </div>
 
-    <!-- DEDUÇÕES -->
+    <!-- ── DEDUÇÕES ────────────────────────────────────── -->
     <div id="p-deducoes" class="page">
       <div class="page-header header-row">
         <div>
           <h2>Deduções</h2>
-          <p>Gerencie e maximize suas deduções no Imposto de Renda</p>
+          <p>Gerencie despesas que reduzem sua base de cálculo do IR</p>
         </div>
-        <button class="btn btn-primary" onclick="openModal('modal-deducao')">+ Adicionar Despesa</button>
+        <button class="btn btn-primary" onclick="openModal('modal-deducao')">+ Adicionar manual</button>
       </div>
 
-      <div class="grid-3" style="margin-bottom:20px;">
+      <div class="grid-3" style="margin-bottom:20px">
         <div class="metric">
           <div class="metric-label">Saúde</div>
-          <div class="metric-value" style="color:var(--teal)">8.682</div>
-          <div class="metric-sub">R$ · sem limite legal</div>
+          <div class="metric-value" style="color:var(--teal)" id="ded-saude">0</div>
+          <div class="metric-sub">R$ • dedução integral</div>
         </div>
         <div class="metric">
           <div class="metric-label">Educação</div>
-          <div class="metric-value" style="color:var(--accent)">3.858</div>
-          <div class="metric-sub">R$ · limite R$ 3.561,50 <span class="down">▲ acima</span></div>
+          <div class="metric-value" style="color:var(--accent)" id="ded-edu">0</div>
+          <div class="metric-sub">R$ • limite R$ 3.561,50</div>
         </div>
         <div class="metric">
           <div class="metric-label">Previdência</div>
-          <div class="metric-value" style="color:var(--purple)">2.000</div>
-          <div class="metric-sub">R$ · limite 12% da renda</div>
+          <div class="metric-value" style="color:var(--purple)" id="ded-prev">0</div>
+          <div class="metric-sub">R$ • até 12% renda</div>
         </div>
       </div>
 
-      <div class="alert alert-warn">
-        <span class="alert-icon">⚠</span>
-        <span>Educação: R$ 3.858 registrados, mas o limite de dedução é R$ 3.561,50 por pessoa. Você está R$ 296,50 acima do limite — o excedente não será deduzido.</span>
-      </div>
+      <div class="alert alert-info" id="dedAlert"></div>
 
       <div class="card">
-        <div class="section-title">Despesas dedutíveis registradas</div>
+        <div class="section-title">Transações dedutíveis registradas</div>
         <div class="table-wrap">
           <table>
             <thead>
-              <tr><th>Data</th><th>Descrição</th><th>Tipo</th><th>Comprovante</th><th style="text-align:right">Valor</th></tr>
+              <tr><th>Data</th><th>Descrição</th><th>Tipo</th><th style="text-align:right">Valor</th></tr>
             </thead>
-            <tbody>
-              <tr><td class="td-mono">12/01/2025</td><td>Plano de saúde mensal</td><td><span class="cat-pill cat-saude">Saúde</span></td><td style="color:var(--green);font-size:12px;">✓ NF importada</td><td class="td-mono" style="text-align:right">R$ 480,00</td></tr>
-              <tr><td class="td-mono">15/02/2025</td><td>Consulta médica — cardiologista</td><td><span class="cat-pill cat-saude">Saúde</span></td><td style="color:var(--green);font-size:12px;">✓ NF importada</td><td class="td-mono" style="text-align:right">R$ 350,00</td></tr>
-              <tr><td class="td-mono">10/03/2025</td><td>Mensalidade faculdade</td><td><span class="cat-pill cat-educacao">Educação</span></td><td style="color:var(--green);font-size:12px;">✓ NF importada</td><td class="td-mono" style="text-align:right">R$ 620,00</td></tr>
-              <tr><td class="td-mono">01/04/2025</td><td>Exames laboratoriais</td><td><span class="cat-pill cat-saude">Saúde</span></td><td style="color:var(--amber);font-size:12px;">⚠ sem NF</td><td class="td-mono" style="text-align:right">R$ 280,00</td></tr>
-              <tr><td class="td-mono">05/05/2025</td><td>Aporte PGBL — previdência</td><td><span class="cat-pill cat-outros">Previdência</span></td><td style="color:var(--green);font-size:12px;">✓ informe banco</td><td class="td-mono" style="text-align:right">R$ 500,00</td></tr>
-              <tr><td class="td-mono">20/06/2025</td><td>Óculos de grau + lentes</td><td><span class="cat-pill cat-saude">Saúde</span></td><td style="color:var(--red);font-size:12px;">✗ pendente</td><td class="td-mono" style="text-align:right">R$ 1.200,00</td></tr>
-            </tbody>
+            <tbody id="deducaoBody"></tbody>
           </table>
+        </div>
+        <div id="deducaoEmpty" style="text-align:center;padding:24px;color:var(--text3);font-size:13px;display:none">
+          Nenhuma dedução encontrada. Importe arquivos ou adicione manualmente.
         </div>
       </div>
     </div>
 
   </main>
-</div>
+</div><!-- /.layout -->
+</div><!-- /#appScreen -->
 
-<!-- MODAL CONECTAR FONTE -->
-<div id="modal-connect" class="modal-overlay" onclick="closeModalOutside(event,'modal-connect')">
+<!-- ── MODAL CONECTAR ─────────────────────────────────── -->
+<div id="modal-connect" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-connect')">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('modal-connect')">×</button>
-    <h3>Conectar nova fonte</h3>
-    <p>Selecione a instituição e autorize via Open Finance. Você será redirecionado para o app/site da instituição para aprovar o consentimento.</p>
-    <div class="input-group">
-      <label>Instituição financeira</label>
-      <select>
-        <option>Nubank</option><option>Itaú</option><option>Bradesco</option>
-        <option>Santander</option><option>BTG Pactual</option>
-        <option>Mercado Pago</option><option>Inter</option><option>C6 Bank</option>
-        <option>Sicredi</option><option>Outro banco...</option>
-      </select>
+    <h3>Pré-registro Open Finance</h3>
+    <p>Registre interesse para quando a integração estiver disponível.</p>
+    <div class="input-group"><label>Banco / Instituição</label>
+      <select><option>Nubank</option><option>Itaú</option><option>Bradesco</option><option>Santander</option><option>Banco do Brasil</option><option>Caixa Econômica</option><option>C6 Bank</option><option>Inter</option><option>Outro</option></select>
     </div>
-    <div class="input-group">
-      <label>Tipo de dado</label>
-      <select>
-        <option>Conta corrente + cartão</option>
-        <option>Conta poupança</option>
-        <option>Financiamento imobiliário</option>
-        <option>Investimentos</option>
-        <option>Cartão de crédito</option>
-      </select>
-    </div>
-    <div class="input-group">
-      <label>Período do consentimento</label>
-      <select><option>12 meses</option><option>6 meses</option><option>3 meses</option></select>
+    <div class="input-group"><label>Tipo de conta</label>
+      <select><option>Conta corrente</option><option>Cartão de crédito</option><option>Financiamento</option><option>Investimentos</option></select>
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-connect')">Cancelar</button>
-      <button class="btn btn-primary" style="flex:2" onclick="closeModal('modal-connect');showToast('🔐 Redirecionando para autorização Open Finance...')">🔐 Autorizar via Open Finance</button>
+      <button class="btn btn-primary" style="flex:2" onclick="closeModal('modal-connect');showToast('✓ Interesse registrado! Você será notificado.')">Registrar interesse</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL DEDUCAO -->
-<div id="modal-deducao" class="modal-overlay" onclick="closeModalOutside(event,'modal-deducao')">
+<!-- ── MODAL DEDUCAO MANUAL ───────────────────────────── -->
+<div id="modal-deducao" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-deducao')">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('modal-deducao')">×</button>
-    <h3>Adicionar despesa dedutível</h3>
-    <p>Adicione manualmente despesas que não foram capturadas automaticamente.</p>
-    <div class="input-group"><label>Descrição</label><input type="text" placeholder="Ex: Consulta médica particular"></div>
-    <div class="input-group"><label>Tipo de dedução</label>
-      <select><option>Saúde</option><option>Educação</option><option>Previdência privada</option><option>Dependente</option></select>
+    <h3>Adicionar dedução manual</h3>
+    <p>Para despesas não capturadas automaticamente pelos arquivos importados.</p>
+    <div class="input-group"><label>Descrição</label><input type="text" id="ded-desc" placeholder="Ex: Consulta médica particular"></div>
+    <div class="input-group"><label>Tipo</label>
+      <select id="ded-tipo"><option>Saúde</option><option>Educação</option><option>Previdência</option><option>Outros</option></select>
     </div>
-    <div class="input-group"><label>Valor (R$)</label><input type="number" placeholder="0,00"></div>
-    <div class="input-group"><label>Data</label><input type="date"></div>
+    <div class="input-group"><label>Valor (R$)</label><input type="number" id="ded-val" placeholder="0.00" step="0.01"></div>
+    <div class="input-group"><label>Data</label><input type="date" id="ded-date"></div>
     <div class="modal-actions">
       <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-deducao')">Cancelar</button>
-      <button class="btn btn-primary" style="flex:2" onclick="closeModal('modal-deducao');showToast('✓ Despesa adicionada com sucesso!')">Adicionar</button>
+      <button class="btn btn-primary" style="flex:2" onclick="addManualDeduction()">Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL EDITAR CATEGORIA ─────────────────────────── -->
+<div id="modal-editcat" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-editcat')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-editcat')">×</button>
+    <h3>Editar transação</h3>
+    <p>Ajuste a categoria e dedutibilidade desta transação.</p>
+    <input type="hidden" id="edit-idx">
+    <div class="input-group"><label>Categoria</label>
+      <select id="edit-cat">
+        <option>Renda</option><option>Saúde</option><option>Alimentação</option>
+        <option>Educação</option><option>Moradia</option><option>Transporte</option><option>Outros</option>
+      </select>
+    </div>
+    <div class="input-group"><label>Dedutível no IR</label>
+      <select id="edit-ded"><option value="false">Não</option><option value="true">Sim</option></select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-editcat')">Cancelar</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveEditTransaction()">Salvar</button>
     </div>
   </div>
 </div>
 
 <div id="toast"></div>
 
+<!-- ════════════════════════════════════════════════════ -->
+<!-- SCRIPTS                                              -->
+<!-- ════════════════════════════════════════════════════ -->
 <script>
-const transactions = [
-  {date:'2025-12-15',desc:'Supermercado BIG — Nota Paraná',fonte:'Nota Paraná',cat:'Alimentação',deductible:false,val:287.50},
-  {date:'2025-12-10',desc:'Parcela financiamento — CEF',fonte:'Caixa Econômica',cat:'Moradia',deductible:false,val:1245.92},
-  {date:'2025-12-05',desc:'Plano de saúde Unimed',fonte:'Banco Principal',cat:'Saúde',deductible:true,val:480.00},
-  {date:'2025-11-28',desc:'Farmácia São João — Nota Paraná',fonte:'Nota Paraná',cat:'Saúde',deductible:true,val:92.80},
-  {date:'2025-11-20',desc:'Mensalidade faculdade EAD',fonte:'Cartão Online',cat:'Educação',deductible:true,val:620.00},
-  {date:'2025-11-15',desc:'Posto de combustível PR',fonte:'Nota Paraná',cat:'Transporte',deductible:false,val:320.00},
-  {date:'2025-11-10',desc:'Parcela financiamento — CEF',fonte:'Caixa Econômica',cat:'Moradia',deductible:false,val:1245.92},
-  {date:'2025-11-05',desc:'Aporte PGBL Banco Principal',fonte:'Banco Principal',cat:'Outros',deductible:true,val:500.00},
-  {date:'2025-10-22',desc:'Consulta médica — Dr. Ribeiro',fonte:'Banco Principal',cat:'Saúde',deductible:true,val:350.00},
-  {date:'2025-10-15',desc:'Amazon — eletrônicos',fonte:'Cartão Online',cat:'Outros',deductible:false,val:1840.00},
-  {date:'2025-10-10',desc:'Parcela financiamento — CEF',fonte:'Caixa Econômica',cat:'Moradia',deductible:false,val:1245.92},
-  {date:'2025-09-30',desc:'Mercadinho local — Nota Paraná',fonte:'Nota Paraná',cat:'Alimentação',deductible:false,val:156.40},
-  {date:'2025-09-15',desc:'Exame de sangue — laboratório',fonte:'Nota Paraná',cat:'Saúde',deductible:true,val:280.00},
-  {date:'2025-08-20',desc:'Óculos de grau + armação',fonte:'Banco Principal',cat:'Saúde',deductible:true,val:1200.00},
-  {date:'2025-08-10',desc:'Salário — crédito em conta',fonte:'Banco Principal',cat:'Renda',deductible:false,val:5500.00},
+// Configurar PDF.js worker
+if(typeof pdfjsLib !== 'undefined'){
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
+// ─── ESTADO ─────────────────────────────────────────────
+let state = {
+  user: null,
+  transactions: [],
+  importHistory: [],
+  currentTab: 'all'
+};
+
+const STORAGE_KEY = 'irfacil_v2';
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) Object.assign(state, JSON.parse(raw));
+  }catch(e){}
+}
+
+function saveState(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+}
+
+// ─── AUTH ────────────────────────────────────────────────
+function switchAuthTab(tab){
+  document.getElementById('tabLogin').classList.toggle('active', tab==='login');
+  document.getElementById('tabRegister').classList.toggle('active', tab==='register');
+  document.getElementById('formLogin').style.display = tab==='login'?'block':'none';
+  document.getElementById('formRegister').style.display = tab==='register'?'block':'none';
+  document.getElementById('loginError').style.display = 'none';
+}
+
+function showLoginError(msg){
+  const el = document.getElementById('loginError');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+function doLogin(){
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  if(!email || !pass){ showLoginError('Preencha e-mail e senha.'); return; }
+  // Verificar conta registrada no localStorage
+  const accounts = JSON.parse(localStorage.getItem('irfacil_accounts')||'[]');
+  const acc = accounts.find(a => a.email===email && a.pass===btoa(pass));
+  if(!acc){ showLoginError('E-mail ou senha incorretos.'); return; }
+  loginSuccess(acc.name, acc.email);
+}
+
+function doRegister(){
+  const name  = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pass  = document.getElementById('regPass').value;
+  const pass2 = document.getElementById('regPass2').value;
+  if(!name||!email||!pass){ showLoginError('Preencha todos os campos.'); return; }
+  if(pass!==pass2){ showLoginError('As senhas não coincidem.'); return; }
+  if(pass.length<6){ showLoginError('Senha mínima: 6 caracteres.'); return; }
+  const accounts = JSON.parse(localStorage.getItem('irfacil_accounts')||'[]');
+  if(accounts.find(a=>a.email===email)){ showLoginError('E-mail já cadastrado.'); return; }
+  accounts.push({name, email, pass: btoa(pass)});
+  localStorage.setItem('irfacil_accounts', JSON.stringify(accounts));
+  showToast('✓ Conta criada! Faça login.');
+  switchAuthTab('login');
+  document.getElementById('loginEmail').value = email;
+}
+
+function demoLogin(){ loginSuccess('Visitante Demo','demo@irfacil.app'); }
+
+function loginSuccess(name, email){
+  state.user = {name, email};
+  // Carregar dados específicos do usuário
+  const userKey = STORAGE_KEY + '_' + btoa(email);
+  try{
+    const raw = localStorage.getItem(userKey);
+    if(raw){
+      const data = JSON.parse(raw);
+      state.transactions = data.transactions || [];
+      state.importHistory = data.importHistory || [];
+    }
+  }catch(e){}
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appScreen').style.display = 'block';
+  // Atualizar UI
+  const initials = name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  document.getElementById('userAvatar').textContent = initials;
+  document.getElementById('userName').textContent = name;
+  updateAllUI();
+}
+
+function doLogout(){
+  // Salvar dados antes de sair
+  if(state.user){
+    const userKey = STORAGE_KEY + '_' + btoa(state.user.email);
+    localStorage.setItem(userKey, JSON.stringify({
+      transactions: state.transactions,
+      importHistory: state.importHistory
+    }));
+  }
+  state.user = null; state.transactions = []; state.importHistory = [];
+  document.getElementById('appScreen').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+}
+
+// ─── NAVEGAÇÃO ───────────────────────────────────────────
+function nav(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const pg = document.getElementById('p-'+page);
+  if(pg) pg.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    if(n.getAttribute('onclick')&&n.getAttribute('onclick').includes("'"+page+"'"))
+      n.classList.add('active');
+  });
+  if(page==='transacoes') renderTransactions();
+  if(page==='relatorio') renderReport();
+  if(page==='deducoes') renderDeducoes();
+  if(page==='importar') renderImportHistory();
+}
+
+// ─── CATEGORIZAÇÃO AUTOMÁTICA ───────────────────────────
+const CAT_RULES = [
+  {cat:'Renda', ded:false, keys:['salário','salario','holerite','rendimento','crédito em conta','credito em conta','pagamento de salário']},
+  {cat:'Saúde', ded:true,  keys:['farmácia','farmacia','drogaria','médico','medico','clínica','clinica','hospital','plano de saúde','plano saude','odonto','dentista','laboratorio','laboratório','exame','unimed','amil','sulamerica','bradesco saude','hapvida']},
+  {cat:'Educação', ded:true, keys:['escola','faculdade','universidade','curso','mensalidade','material escolar','livraria','ensino','educação','educacao','ead','seb','kroton','anhanguera','estácio','estacio','senai','senac']},
+  {cat:'Alimentação', ded:false, keys:['supermercado','mercado','padaria','restaurante','lanchonete','ifood','rappi','delivery','açougue','acougue','hortifruti','carrefour','extra','pão de açúcar','assaí','atacadão','big','comper']},
+  {cat:'Moradia', ded:false, keys:['aluguel','financiamento','condomínio','condominio','iptu','agua','luz','energia','gas','gás','caixa econômica','cef','habite','parcela imovel','prestação']},
+  {cat:'Transporte', ded:false, keys:['posto','combustível','combustivel','gasolina','uber','99','táxi','taxi','metro','metrô','onibus','ônibus','estacionamento','pedágio','pedagio','detran','ipva']},
 ];
 
-let currentFilter = '';
-let currentCat = '';
-let currentTab = 'all';
+function categorize(desc){
+  const d = (desc||'').toLowerCase();
+  for(const rule of CAT_RULES){
+    if(rule.keys.some(k=>d.includes(k)))
+      return {cat: rule.cat, deductible: rule.ded};
+  }
+  return {cat:'Outros', deductible:false};
+}
 
-function renderTransactions() {
-  const tbody = document.getElementById('transBody');
-  let data = transactions.filter(t => {
-    const matchFilter = !currentFilter || t.desc.toLowerCase().includes(currentFilter.toLowerCase());
-    const matchCat = !currentCat || t.cat === currentCat;
-    const matchTab = currentTab === 'all' ||
-      (currentTab === 'dedutivel' && t.deductible) ||
-      (currentTab === 'financiamento' && t.fonte === 'Caixa Econômica') ||
-      (currentTab === 'notas' && t.fonte === 'Nota Paraná');
-    return matchFilter && matchCat && matchTab;
+// ─── PROCESSAMENTO DE ARQUIVOS ───────────────────────────
+function handleFileSelect(file){
+  if(!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  showProgress(true, 'Lendo arquivo...');
+
+  if(ext==='csv'){
+    processCSV(file);
+  } else if(ext==='xlsx'||ext==='xls'){
+    processXLSX(file);
+  } else if(ext==='pdf'){
+    processPDF(file);
+  } else {
+    showProgress(false);
+    showToast('❌ Formato não suportado. Use CSV, XLSX ou PDF.');
+  }
+}
+
+// ── CSV ──────────────────────────────────────────────────
+function processCSV(file){
+  Papa.parse(file, {
+    header:true, skipEmptyLines:true,
+    complete: (res) => {
+      const rows = res.data;
+      const txs = parseGenericRows(rows, file.name);
+      finalizeImport(txs, file.name);
+    },
+    error: () => { showProgress(false); showToast('❌ Erro ao ler CSV.'); }
+  });
+}
+
+// ── XLSX ─────────────────────────────────────────────────
+function processXLSX(file){
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try{
+      const wb = XLSX.read(e.target.result, {type:'binary'});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, {defval:''});
+      const txs = parseGenericRows(rows, file.name);
+      finalizeImport(txs, file.name);
+    }catch(err){
+      showProgress(false);
+      showToast('❌ Erro ao ler XLSX: '+err.message);
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+
+// ── PARSER GENÉRICO (CSV/XLSX) ───────────────────────────
+function parseGenericRows(rows, filename){
+  if(!rows||rows.length===0) return [];
+  const first = rows[0];
+  const keys = Object.keys(first).map(k=>k.toLowerCase().trim());
+
+  // Mapear colunas flexivelmente
+  const findCol = (aliases) => {
+    for(const alias of aliases){
+      const found = Object.keys(first).find(k => k.toLowerCase().includes(alias));
+      if(found) return found;
+    }
+    return null;
+  };
+
+  const colData  = findCol(['data','date','dt lançamento','dt','lancamento','lançamento']);
+  const colDesc  = findCol(['descricao','descrição','description','histórico','historico','estabelecimento','desc','memorial','complemento']);
+  const colVal   = findCol(['valor','value','amount','vlr','vl','debito','débito','credito','crédito','montante']);
+  const colCat   = findCol(['categoria','category','cat','tipo','type']);
+
+  const txs = [];
+  for(const row of rows){
+    let raw = {
+      dateRaw: colData ? String(row[colData]||'').trim() : '',
+      desc:    colDesc ? String(row[colDesc]||'').trim() : Object.values(row).join(' ').trim(),
+      valRaw:  colVal  ? String(row[colVal]||'').trim()  : '0',
+      catRaw:  colCat  ? String(row[colCat]||'').trim()  : ''
+    };
+
+    if(!raw.desc || raw.desc.length < 2) continue;
+
+    // Parsear valor
+    let val = parseFloat(raw.valRaw.replace(/[R$\s.]/g,'').replace(',','.'));
+    if(isNaN(val)) continue;
+    val = Math.abs(val); // sempre positivo — tratamos como gasto
+
+    // Parsear data
+    let dateStr = parseDate(raw.dateRaw);
+
+    // Categorizar
+    const catInfo = categorize(raw.desc);
+    const cat = raw.catRaw || catInfo.cat;
+
+    txs.push({
+      id: Date.now() + Math.random(),
+      date: dateStr,
+      desc: raw.desc,
+      cat: cat,
+      deductible: catInfo.deductible,
+      val: val,
+      source: filename
+    });
+  }
+  return txs;
+}
+
+function parseDate(raw){
+  if(!raw) return new Date().toISOString().split('T')[0];
+  // Formatos: DD/MM/YYYY, YYYY-MM-DD, MM/DD/YYYY, DD-MM-YYYY
+  const r = raw.trim();
+  const m1 = r.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if(m1) return `${m1[3]}-${m1[2]}-${m1[1]}`;
+  const m2 = r.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(m2) return `${m2[1]}-${m2[2]}-${m2[3]}`;
+  const m3 = r.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+  if(m3) return `${m3[3]}-${m3[2]}-${m3[1]}`;
+  // Número serial Excel (dias desde 1900-01-01)
+  if(/^\d{5}$/.test(r)){
+    const d = new Date((parseInt(r)-25569)*86400000);
+    return d.toISOString().split('T')[0];
+  }
+  return new Date().toISOString().split('T')[0];
+}
+
+// ── PDF ──────────────────────────────────────────────────
+async function processPDF(file){
+  try{
+    showProgress(true, 'Extraindo texto do PDF...');
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+    let fullText = '';
+    const total = pdf.numPages;
+
+    for(let i=1;i<=total;i++){
+      setProgress(Math.round((i/total)*60), `Página ${i} de ${total}...`);
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      const lines = content.items.map(it=>it.str).join(' ');
+      fullText += lines + '\n';
+    }
+
+    setProgress(70,'Interpretando transações...');
+    const txs = parsePDFText(fullText, file.name);
+    finalizeImport(txs, file.name);
+
+  }catch(err){
+    showProgress(false);
+    showToast('❌ Erro ao processar PDF: '+err.message);
+    console.error(err);
+  }
+}
+
+function parsePDFText(text, filename){
+  const txs = [];
+  const lines = text.split('\n').map(l=>l.trim()).filter(l=>l.length>3);
+
+  // Padrão 1: data + descrição + valor (ex: Nubank, Itaú, Bradesco)
+  // "15/03/2025 Supermercado BIG 287,50"
+  const p1 = /(\d{2}\/\d{2}\/\d{4}|\d{2}\/\d{2}\/\d{2})\s+(.{4,60}?)\s+([-]?\d{1,3}(?:\.\d{3})*(?:,\d{2})?)\s*$/;
+
+  // Padrão 2: data com traço
+  // "15-03-2025 descrição 287,50"
+  const p2 = /(\d{2}-\d{2}-\d{4})\s+(.{4,60}?)\s+([-]?\d{1,3}(?:\.\d{3})*(?:,\d{2})?)\s*$/;
+
+  // Padrão 3: caixa econômica — "01/2025  1.245,92  Amortização  ..."
+  const p3 = /(\d{2}\/\d{4})\s+([\d.,]+)\s+(.+)/;
+
+  for(const line of lines){
+    let m = p1.exec(line) || p2.exec(line);
+    if(m){
+      const dateStr = parseDate(m[1]);
+      const desc = m[2].trim();
+      const val  = parseFloat(m[3].replace(/\./g,'').replace(',','.'));
+      if(!isNaN(val) && val > 0 && desc.length > 2){
+        const catInfo = categorize(desc);
+        txs.push({
+          id: Date.now()+Math.random(), date:dateStr, desc, val,
+          cat:catInfo.cat, deductible:catInfo.deductible, source:filename
+        });
+      }
+      continue;
+    }
+    // Padrão Caixa
+    m = p3.exec(line);
+    if(m){
+      const dateStr = parseDate('01/'+m[1]);
+      const val = parseFloat(m[2].replace(/\./g,'').replace(',','.'));
+      const desc = m[3].trim();
+      if(!isNaN(val) && val > 0){
+        txs.push({
+          id:Date.now()+Math.random(), date:dateStr,
+          desc: desc||'Parcela financiamento', val,
+          cat:'Moradia', deductible:false, source:filename
+        });
+      }
+    }
+  }
+  return txs;
+}
+
+// ─── FINALIZAR IMPORTAÇÃO ────────────────────────────────
+function finalizeImport(txs, filename){
+  setProgress(90,'Salvando...');
+  setTimeout(()=>{
+    if(txs.length===0){
+      showProgress(false);
+      showToast('⚠ Nenhuma transação encontrada neste arquivo. Verifique o formato.');
+      return;
+    }
+
+    // Evitar duplicatas por id
+    const existingIds = new Set(state.transactions.map(t=>t.id));
+    const novos = txs.filter(t=>!existingIds.has(t.id));
+    state.transactions.push(...novos);
+
+    const totalVal = txs.reduce((s,t)=>s+t.val,0);
+    const dedCount = txs.filter(t=>t.deductible).length;
+
+    // Histórico
+    state.importHistory.unshift({
+      file: filename,
+      date: new Date().toLocaleDateString('pt-BR'),
+      count: txs.length,
+      total: totalVal,
+      icon: getFileIcon(filename)
+    });
+    if(state.importHistory.length>20) state.importHistory.pop();
+
+    saveUserData();
+    setProgress(100,'Concluído!');
+
+    // Mostrar resultado
+    document.getElementById('res-file').textContent = filename;
+    document.getElementById('res-count').textContent = txs.length;
+    document.getElementById('res-total').textContent = 'R$ '+totalVal.toLocaleString('pt-BR',{minimumFractionDigits:2});
+    document.getElementById('res-ded').textContent = dedCount+' itens';
+    document.getElementById('importResult').classList.add('show');
+
+    showToast(`✅ ${txs.length} transações importadas com sucesso!`);
+    updateAllUI();
+
+    setTimeout(()=>showProgress(false),800);
+  },300);
+}
+
+function getFileIcon(name){
+  const ext = name.split('.').pop().toLowerCase();
+  return {pdf:'📄',csv:'📊',xlsx:'📗',xls:'📗'}[ext]||'📁';
+}
+
+function saveUserData(){
+  if(!state.user) return;
+  const userKey = STORAGE_KEY+'_'+btoa(state.user.email);
+  localStorage.setItem(userKey, JSON.stringify({
+    transactions: state.transactions,
+    importHistory: state.importHistory
+  }));
+}
+
+// ─── PROGRESSO ───────────────────────────────────────────
+function showProgress(show, msg){
+  const wrap = document.getElementById('progressWrap');
+  wrap.classList.toggle('show', show);
+  if(!show){ document.getElementById('progressFill').style.width='0%'; }
+  if(msg) document.getElementById('progressLabel').textContent = msg;
+}
+function setProgress(pct, msg){
+  document.getElementById('progressFill').style.width = pct+'%';
+  if(msg) document.getElementById('progressLabel').textContent = msg;
+}
+
+// ─── DRAG & DROP ─────────────────────────────────────────
+(function initDrop(){
+  const zone = document.getElementById('dropZone');
+  if(!zone) return;
+  zone.addEventListener('dragover', e=>{e.preventDefault();zone.classList.add('drag-over')});
+  zone.addEventListener('dragleave', ()=>zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e=>{
+    e.preventDefault(); zone.classList.remove('drag-over');
+    if(e.dataTransfer.files[0]) handleFileSelect(e.dataTransfer.files[0]);
+  });
+})();
+
+// ─── TEMPLATE CSV ────────────────────────────────────────
+function downloadTemplate(){
+  const rows = [
+    ['Data','Descricao','Valor','Categoria'],
+    ['15/01/2025','Salário janeiro','5500.00','Renda'],
+    ['20/01/2025','Supermercado BIG','287.50','Alimentação'],
+    ['25/01/2025','Plano de saúde Unimed','480.00','Saúde'],
+    ['28/01/2025','Mensalidade faculdade','620.00','Educação'],
+    ['30/01/2025','Parcela financiamento CEF','1245.92','Moradia'],
+  ];
+  const csv = rows.map(r=>r.join(',')).join('\n');
+  const blob = new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'modelo_irfacil.csv';
+  a.click();
+  showToast('📥 Modelo CSV baixado!');
+}
+
+// ─── RENDERIZAR TRANSAÇÕES ───────────────────────────────
+function renderTransactions(){
+  const search = (document.getElementById('searchInput')?.value||'').toLowerCase();
+  const cat    = document.getElementById('catFilter')?.value||'';
+  const tab    = state.currentTab;
+
+  let list = state.transactions.filter(t=>{
+    const ms = !search || t.desc.toLowerCase().includes(search);
+    const mc = !cat || t.cat===cat;
+    const mt = tab==='all' || (tab==='dedutivel'&&t.deductible) || (tab==='renda'&&t.cat==='Renda');
+    return ms&&mc&&mt;
   });
 
-  tbody.innerHTML = data.map(t => {
-    const catClass = {
-      'Saúde':'cat-saude','Alimentação':'cat-alimentacao','Educação':'cat-educacao',
-      'Moradia':'cat-moradia','Transporte':'cat-transporte','Outros':'cat-outros',
-      'Renda':'cat-outros'
-    }[t.cat] || 'cat-outros';
-    const deductIcon = t.deductible
-      ? '<span style="color:var(--green);font-size:12px;">✓ sim</span>'
-      : '<span style="color:var(--text3);font-size:12px;">—</span>';
-    const color = t.cat === 'Renda' ? 'color:var(--green)' : '';
+  // Ordenar por data desc
+  list.sort((a,b)=>b.date.localeCompare(a.date));
+
+  const tbody = document.getElementById('transBody');
+  const empty = document.getElementById('transEmpty');
+  document.getElementById('transCount').textContent = state.transactions.length+' transações importadas';
+
+  if(!list.length){
+    tbody.innerHTML='';
+    empty.style.display='block';
+    return;
+  }
+  empty.style.display='none';
+  const catMap = {'Saúde':'cat-saude','Alimentação':'cat-alimentacao','Educação':'cat-educacao','Moradia':'cat-moradia','Transporte':'cat-transporte','Renda':'cat-renda'};
+
+  tbody.innerHTML = list.map((t,globalIdx)=>{
+    const realIdx = state.transactions.indexOf(t);
+    const cc = catMap[t.cat]||'cat-outros';
+    const dIcon = t.deductible ? '<span style="color:var(--green);font-size:12px">✓</span>' : '<span style="color:var(--text3)">—</span>';
+    const valColor = t.cat==='Renda' ? 'color:var(--green)' : '';
+    const shortSrc = (t.source||'').split('/').pop().substring(0,20);
     return `<tr>
-      <td class="td-mono">${t.date.split('-').reverse().join('/')}</td>
-      <td>${t.desc}</td>
-      <td style="font-size:11px;color:var(--text3)">${t.fonte}</td>
-      <td><span class="cat-pill ${catClass}">${t.cat}</span></td>
-      <td>${deductIcon}</td>
-      <td class="td-mono" style="text-align:right;${color}">R$ ${t.val.toFixed(2).replace('.',',')}</td>
+      <td class="td-mono">${(t.date||'').split('-').reverse().join('/')}</td>
+      <td style="max-width:220px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis" title="${t.desc}">${t.desc}</td>
+      <td style="font-size:11px;color:var(--text3);max-width:100px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis" title="${t.source||''}">${shortSrc||'—'}</td>
+      <td><span class="cat-pill ${cc}">${t.cat}</span></td>
+      <td style="text-align:center">${dIcon}</td>
+      <td class="td-mono" style="text-align:right;${valColor}">R$ ${t.val.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="openEditTransaction(${realIdx})" style="padding:4px 8px;font-size:11px">✎</button></td>
     </tr>`;
   }).join('');
 }
 
-function filterTransactions(v) { currentFilter = v; renderTransactions(); }
-function filterByCategory(v) { currentCat = v; renderTransactions(); }
-function setTab(el, tab) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+function setTab(tab, el){
+  state.currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
-  currentTab = tab;
   renderTransactions();
 }
 
-// Monthly bar chart
-const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-const income = [5500,5500,6200,5500,5500,5500,5500,11000,5500,5500,5500,6480];
-const expenses = [3200,2800,4100,3600,3900,4200,3800,5200,3700,4800,4100,4100];
-const maxVal = Math.max(...income, ...expenses);
+function clearTransactions(){
+  if(!confirm('Apagar TODAS as transações? Esta ação não pode ser desfeita.')) return;
+  state.transactions = [];
+  saveUserData();
+  updateAllUI();
+  showToast('🗑 Transações removidas.');
+}
 
-function buildChart() {
-  const chart = document.getElementById('monthChart');
-  const labels = document.getElementById('monthLabels');
-  chart.innerHTML = '';
-  labels.innerHTML = '';
-  months.forEach((m, i) => {
-    const incH = Math.round((income[i] / maxVal) * 76);
-    const expH = Math.round((expenses[i] / maxVal) * 76);
-    chart.innerHTML += `<div class="bar-col">
-      <div style="display:flex;gap:2px;align-items:flex-end;height:76px;">
-        <div class="bar" style="height:${incH}px;width:10px;" title="Renda R$ ${income[i]}"></div>
-        <div class="bar expenses" style="height:${expH}px;width:10px;" title="Gastos R$ ${expenses[i]}"></div>
-      </div>
-    </div>`;
-    labels.innerHTML += `<div style="flex:1;text-align:center;font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;">${m}</div>`;
+// ─── EDITAR TRANSAÇÃO ────────────────────────────────────
+function openEditTransaction(idx){
+  const t = state.transactions[idx];
+  if(!t) return;
+  document.getElementById('edit-idx').value = idx;
+  document.getElementById('edit-cat').value = t.cat;
+  document.getElementById('edit-ded').value = String(t.deductible);
+  openModal('modal-editcat');
+}
+function saveEditTransaction(){
+  const idx = parseInt(document.getElementById('edit-idx').value);
+  state.transactions[idx].cat = document.getElementById('edit-cat').value;
+  state.transactions[idx].deductible = document.getElementById('edit-ded').value==='true';
+  closeModal('modal-editcat');
+  saveUserData();
+  updateAllUI();
+  showToast('✓ Transação atualizada.');
+}
+
+// ─── DEDUÇÃO MANUAL ──────────────────────────────────────
+function addManualDeduction(){
+  const desc = document.getElementById('ded-desc').value.trim();
+  const tipo = document.getElementById('ded-tipo').value;
+  const val  = parseFloat(document.getElementById('ded-val').value||0);
+  const date = document.getElementById('ded-date').value || new Date().toISOString().split('T')[0];
+  if(!desc||!val){ showToast('⚠ Preencha descrição e valor.'); return; }
+  state.transactions.push({
+    id: Date.now()+Math.random(),
+    date, desc, cat:tipo, deductible:true, val,
+    source:'Manual'
   });
+  saveUserData();
+  updateAllUI();
+  closeModal('modal-deducao');
+  showToast('✓ Dedução adicionada!');
 }
 
-function nav(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('p-' + page).classList.add('active');
-  const items = document.querySelectorAll('.nav-item');
-  items.forEach(item => { if (item.getAttribute('onclick') && item.getAttribute('onclick').includes("'" + page + "'")) item.classList.add('active'); });
-  if (page === 'transacoes') renderTransactions();
+// ─── RENDERIZAR DEDUÇÕES ─────────────────────────────────
+function renderDeducoes(){
+  const deds = state.transactions.filter(t=>t.deductible);
+  const saude = deds.filter(t=>t.cat==='Saúde').reduce((s,t)=>s+t.val,0);
+  const edu   = deds.filter(t=>t.cat==='Educação').reduce((s,t)=>s+t.val,0);
+  const prev  = deds.filter(t=>['Previdência','Outros'].includes(t.cat)&&t.deductible).reduce((s,t)=>s+t.val,0);
+
+  document.getElementById('ded-saude').textContent = saude.toLocaleString('pt-BR',{maximumFractionDigits:0});
+  document.getElementById('ded-edu').textContent   = edu.toLocaleString('pt-BR',{maximumFractionDigits:0});
+  document.getElementById('ded-prev').textContent  = prev.toLocaleString('pt-BR',{maximumFractionDigits:0});
+
+  const alertEl = document.getElementById('dedAlert');
+  const LIMIT_EDU = 3561.50;
+  if(edu > LIMIT_EDU){
+    alertEl.className='alert alert-warn';
+    alertEl.innerHTML=`<span>⚠</span><span>Educação: R$ ${edu.toLocaleString('pt-BR',{minimumFractionDigits:2})} registrados, mas limite é R$ ${LIMIT_EDU.toLocaleString('pt-BR',{minimumFractionDigits:2})}. Excedente de R$ ${(edu-LIMIT_EDU).toLocaleString('pt-BR',{minimumFractionDigits:2})} não será deduzido.</span>`;
+    alertEl.style.display='flex';
+  } else {
+    alertEl.style.display='none';
+  }
+
+  const tbody = document.getElementById('deducaoBody');
+  const empty = document.getElementById('deducaoEmpty');
+  deds.sort((a,b)=>b.date.localeCompare(a.date));
+  if(!deds.length){ tbody.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  const catMap={'Saúde':'cat-saude','Educação':'cat-educacao'};
+  tbody.innerHTML = deds.map(t=>{
+    const cc=catMap[t.cat]||'cat-outros';
+    return `<tr>
+      <td class="td-mono">${(t.date||'').split('-').reverse().join('/')}</td>
+      <td>${t.desc}</td>
+      <td><span class="cat-pill ${cc}">${t.cat}</span></td>
+      <td class="td-mono" style="text-align:right;color:var(--green)">R$ ${t.val.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td>
+    </tr>`;
+  }).join('');
 }
 
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-function closeModalOutside(e, id) { if (e.target === document.getElementById(id)) closeModal(id); }
+// ─── RELATÓRIO IR ─────────────────────────────────────────
+function renderReport(){
+  const renda = state.transactions.filter(t=>t.cat==='Renda').reduce((s,t)=>s+t.val,0);
+  const dedutiveis = state.transactions.filter(t=>t.deductible);
+  const totalDed = dedutiveis.reduce((s,t)=>s+t.val,0);
+  const base = Math.max(0, renda-totalDed);
+  const fmt = v=>'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2});
 
-let toastTimer;
-function showToast(msg) {
+  // Rendimentos
+  const rendaTxs = state.transactions.filter(t=>t.cat==='Renda');
+  document.getElementById('report-renda').innerHTML = rendaTxs.length ?
+    rendaTxs.map(t=>`<div class="ir-row"><span class="lbl">${t.desc}</span><span class="val">${fmt(t.val)}</span></div>`).join('')
+    : `<div class="ir-row"><span class="lbl" style="color:var(--text3)">Nenhum rendimento registrado</span></div>`;
+  document.getElementById('report-total-renda').textContent = fmt(renda);
+
+  // Categorias
+  const cats = {};
+  state.transactions.filter(t=>t.cat!=='Renda').forEach(t=>{cats[t.cat]=(cats[t.cat]||0)+t.val;});
+  document.getElementById('report-cats').innerHTML = Object.entries(cats).length ?
+    Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`<div class="ir-row"><span class="lbl">${c}</span><span class="val">${fmt(v)}</span></div>`).join('')
+    : `<div class="ir-row"><span class="lbl" style="color:var(--text3)">Importe arquivos para ver categorias</span></div>`;
+
+  // Deduções por categoria
+  const dedCats={};
+  dedutiveis.forEach(t=>{dedCats[t.cat]=(dedCats[t.cat]||0)+t.val;});
+  document.getElementById('report-deducoes').innerHTML = Object.entries(dedCats).length ?
+    Object.entries(dedCats).map(([c,v])=>`
+      <div class="ir-row">
+        <div><span class="lbl">${c}</span><br><span class="deductible-badge">✓ dedutível</span></div>
+        <span class="val">${fmt(v)}</span>
+      </div>`).join('')
+    : `<div class="ir-row"><span class="lbl" style="color:var(--text3)">Nenhuma dedução encontrada</span></div>`;
+
+  document.getElementById('report-total-ded').textContent = fmt(totalDed);
+  document.getElementById('report-base').textContent = fmt(base);
+  document.getElementById('report-base-sub').textContent = `${fmt(renda)} − ${fmt(totalDed)} de deduções`;
+}
+
+function copyReport(){
+  const renda = state.transactions.filter(t=>t.cat==='Renda').reduce((s,t)=>s+t.val,0);
+  const ded   = state.transactions.filter(t=>t.deductible).reduce((s,t)=>s+t.val,0);
+  const txt = `IRFácil — Relatório IR 2026 (ano-base 2025)\n\nRenda bruta: R$ ${renda.toLocaleString('pt-BR',{minimumFractionDigits:2})}\nDeduções: R$ ${ded.toLocaleString('pt-BR',{minimumFractionDigits:2})}\nBase de cálculo: R$ ${Math.max(0,renda-ded).toLocaleString('pt-BR',{minimumFractionDigits:2})}\n\nGerado em ${new Date().toLocaleDateString('pt-BR')}`;
+  navigator.clipboard.writeText(txt).then(()=>showToast('✓ Copiado para a área de transferência!')).catch(()=>showToast('⚠ Não foi possível copiar.'));
+}
+function printReport(){ window.print(); }
+
+// ─── HISTÓRICO DE IMPORTAÇÕES ────────────────────────────
+function renderImportHistory(){
+  const el = document.getElementById('importHistory');
+  if(!state.importHistory.length){
+    el.innerHTML='<p style="color:var(--text3);font-size:13px;text-align:center;padding:20px 0">Nenhuma importação ainda</p>';
+    return;
+  }
+  el.innerHTML = state.importHistory.map(h=>`
+    <div class="hist-item">
+      <div class="hist-icon">${h.icon||'📁'}</div>
+      <div style="flex:1;overflow:hidden">
+        <div class="hist-name" style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${h.file}</div>
+        <div class="hist-meta">${h.date} · R$ ${h.total.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+      </div>
+      <div class="hist-badge">${h.count} itens</div>
+    </div>
+  `).join('');
+}
+
+// ─── DASHBOARD ───────────────────────────────────────────
+function updateDashboard(){
+  const txs = state.transactions;
+  const renda  = txs.filter(t=>t.cat==='Renda').reduce((s,t)=>s+t.val,0);
+  const gastos = txs.filter(t=>t.cat!=='Renda').reduce((s,t)=>s+t.val,0);
+  const ded    = txs.filter(t=>t.deductible).reduce((s,t)=>s+t.val,0);
+  const fontes = [...new Set(txs.map(t=>t.source))].filter(Boolean);
+
+  document.getElementById('m-renda').textContent = renda.toLocaleString('pt-BR',{maximumFractionDigits:0});
+  document.getElementById('m-gastos').textContent = gastos.toLocaleString('pt-BR',{maximumFractionDigits:0});
+  document.getElementById('m-dedutivel').textContent = ded.toLocaleString('pt-BR',{maximumFractionDigits:0});
+  document.getElementById('m-count').textContent = txs.length;
+  document.getElementById('m-fontes-count').textContent = `de ${fontes.length} arquivo(s)`;
+
+  const emptyAlert = document.getElementById('dashEmptyAlert');
+  emptyAlert.style.display = txs.length===0 ? 'flex' : 'none';
+
+  updateDonut();
+  updateBarChart();
+}
+
+function updateDonut(){
+  const cats={};
+  state.transactions.filter(t=>t.cat!=='Renda').forEach(t=>{cats[t.cat]=(cats[t.cat]||0)+t.val;});
+  const total = Object.values(cats).reduce((a,b)=>a+b,0);
+  const colors={'Saúde':'#2dd4bf','Alimentação':'#3ecf8e','Moradia':'#f5a623','Educação':'#5b8cff','Transporte':'#a78bfa','Outros':'#444'};
+  const area = document.getElementById('donutArea');
+  if(!total){ area.innerHTML='<p style="color:var(--text3);font-size:13px;padding:20px 0">Sem dados</p>'; return; }
+  area.innerHTML = `<div class="donut-wrap">
+    <svg width="110" height="110" viewBox="0 0 110 110">
+      <circle cx="55" cy="55" r="45" fill="none" stroke="var(--bg3)" stroke-width="16"/>
+      ${buildDonutArcs(cats, total)}
+      <text x="55" y="52" text-anchor="middle" font-size="9" fill="var(--text3)" font-family="DM Mono">total</text>
+      <text x="55" y="64" text-anchor="middle" font-size="11" fill="var(--text)" font-family="DM Mono" font-weight="500">${(total/1000).toFixed(1)}k</text>
+    </svg>
+    <div style="flex:1;min-width:140px">
+      ${Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`
+        <div class="legend-item">
+          <div class="legend-dot" style="background:${colors[c]||'#666'}"></div>
+          <span class="legend-name">${c}</span>
+          <span class="legend-val">R$ ${v.toLocaleString('pt-BR',{maximumFractionDigits:0})}</span>
+          <span class="legend-pct">${Math.round(v/total*100)}%</span>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function buildDonutArcs(cats, total){
+  const colors={'Saúde':'#2dd4bf','Alimentação':'#3ecf8e','Moradia':'#f5a623','Educação':'#5b8cff','Transporte':'#a78bfa','Outros':'#444'};
+  const circ = 2*Math.PI*45;
+  let offset = 0;
+  return Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([c,v])=>{
+    const pct = v/total;
+    const dash = pct*circ;
+    const arc = `<circle cx="55" cy="55" r="45" fill="none" stroke="${colors[c]||'#666'}" stroke-width="16" stroke-dasharray="${dash.toFixed(1)} ${(circ-dash).toFixed(1)}" stroke-dashoffset="${(-offset).toFixed(1)}" transform="rotate(-90 55 55)"/>`;
+    offset += dash;
+    return arc;
+  }).join('');
+}
+
+function updateBarChart(){
+  const months=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const byMonth = Array(12).fill(0).map(()=>({inc:0,exp:0}));
+  state.transactions.forEach(t=>{
+    const m = parseInt((t.date||'').split('-')[1])-1;
+    if(m>=0&&m<12){
+      if(t.cat==='Renda') byMonth[m].inc+=t.val;
+      else byMonth[m].exp+=t.val;
+    }
+  });
+  const maxVal = Math.max(...byMonth.map(m=>Math.max(m.inc,m.exp)),1);
+  const chart = document.getElementById('barChart');
+  const labels = document.getElementById('barLabels');
+  if(!chart) return;
+  chart.innerHTML = byMonth.map((m,i)=>{
+    const ih = Math.round((m.inc/maxVal)*74);
+    const eh = Math.round((m.exp/maxVal)*74);
+    return `<div class="bar-col">
+      <div class="bar income" style="width:9px;height:${ih}px" title="${months[i]} Renda: R$ ${m.inc.toFixed(0)}"></div>
+      <div class="bar expense" style="width:9px;height:${eh}px" title="${months[i]} Gastos: R$ ${m.exp.toFixed(0)}"></div>
+    </div>`;
+  }).join('');
+  labels.innerHTML = months.map(m=>`<div style="flex:1;text-align:center;font-size:9px;color:var(--text3);font-family:'DM Mono',monospace">${m}</div>`).join('');
+}
+
+// ─── UPDATE GERAL ────────────────────────────────────────
+function updateAllUI(){
+  updateDashboard();
+  renderTransactions();
+}
+
+// ─── MODAIS ──────────────────────────────────────────────
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+// ─── TOAST ───────────────────────────────────────────────
+let _toastTimer;
+function showToast(msg){
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(()=>t.classList.remove('show'),3500);
 }
 
-buildChart();
-renderTransactions();
+// ─── INIT ────────────────────────────────────────────────
+(function init(){
+  // Verificar sessão existente (login persistente básico)
+  try{
+    const session = localStorage.getItem('irfacil_session');
+    if(session){
+      const s = JSON.parse(session);
+      if(s&&s.name&&s.email){
+        loginSuccess(s.name, s.email);
+        return;
+      }
+    }
+  }catch(e){}
+  // Mostrar tela de login
+})();
+
+// Salvar sessão ao logar
+const _origLoginSuccess = loginSuccess;
+// eslint-disable-next-line no-global-assign
+window.loginSuccess = function(name,email){
+  localStorage.setItem('irfacil_session',JSON.stringify({name,email}));
+  _origLoginSuccess(name,email);
+};
+
+// Limpar sessão ao sair
+const _origLogout = doLogout;
+window.doLogout = function(){
+  localStorage.removeItem('irfacil_session');
+  _origLogout();
+};
 </script>
 </body>
 </html>
