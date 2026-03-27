@@ -971,12 +971,74 @@ function nav(page){
 
 // ─── CATEGORIZAÇÃO AUTOMÁTICA ───────────────────────────
 const CAT_RULES = [
-  {cat:'Renda', ded:false, keys:['salário','salario','holerite','rendimento','crédito em conta','credito em conta','pagamento de salário']},
-  {cat:'Saúde', ded:true,  keys:['farmácia','farmacia','drogaria','médico','medico','clínica','clinica','hospital','plano de saúde','plano saude','odonto','dentista','laboratorio','laboratório','exame','unimed','amil','sulamerica','bradesco saude','hapvida']},
-  {cat:'Educação', ded:true, keys:['escola','faculdade','universidade','curso','mensalidade','material escolar','livraria','ensino','educação','educacao','ead','seb','kroton','anhanguera','estácio','estacio','senai','senac']},
-  {cat:'Alimentação', ded:false, keys:['supermercado','mercado','padaria','restaurante','lanchonete','ifood','rappi','delivery','açougue','acougue','hortifruti','carrefour','extra','pão de açúcar','assaí','atacadão','big','comper']},
-  {cat:'Moradia', ded:false, keys:['aluguel','financiamento','condomínio','condominio','iptu','agua','luz','energia','gas','gás','caixa econômica','cef','habite','parcela imovel','prestação']},
-  {cat:'Transporte', ded:false, keys:['posto','combustível','combustivel','gasolina','uber','99','táxi','taxi','metro','metrô','onibus','ônibus','estacionamento','pedágio','pedagio','detran','ipva']},
+  // ── Renda ──────────────────────────────────────────────
+  {cat:'Renda', ded:false, keys:[
+    'salário','salario','holerite','rendimento','remuneracao','remuneração',
+    'remuneracao/salario','credito em conta','crédito em conta','folha',
+    'pgto salario','rend pago aplic','rend aplic','aplicacao automatica',
+    'resgate automatico','transf recebida','pix recebido','ted recebida',
+    'doc recebido','ted 029','ted 104','est itau visa'
+  ]},
+  // ── Saúde ──────────────────────────────────────────────
+  {cat:'Saúde', ded:true, keys:[
+    'farmácia','farmacia','drogaria','médico','medico','clínica','clinica',
+    'hospital','plano de saúde','plano saude','odonto','dentista',
+    'laboratorio','laboratório','exame','unimed','amil','sulamerica',
+    'bradesco saude','hapvida','pay cathe','pay cath','ultrafarma',
+    'oftalmo','fisio','psico','pay med','pay hos','pay lab','pay farm',
+    'pay drog','pay clin','farmacia e','pix qrs farmacia','xs3 seguros'
+  ]},
+  // ── Educação ───────────────────────────────────────────
+  {cat:'Educação', ded:true, keys:[
+    'escola','faculdade','universidade','curso','mensalidade','material escolar',
+    'livraria','ensino','educação','educacao','ead','seb','kroton','anhanguera',
+    'estácio','estacio','senai','senac','pay fac','pay esc','pay uni',
+    'pay curs','pay col','editora e d','pix qrs editora','pag boleto editora',
+    'livraria e','pix qrs livraria','combinaqui','mensal combinaqui'
+  ]},
+  // ── Alimentação ────────────────────────────────────────
+  {cat:'Alimentação', ded:false, keys:[
+    'supermercado','mercado','padaria','restaurante','lanchonete',
+    'ifood','rappi','delivery','açougue','acougue','hortifruti',
+    'carrefour','extra','pão de açúcar','assaí','atacadão','big','comper',
+    'pay merca','pay super','pay rest','pay lanch','pay ifd','pay bello',
+    'pay pad r','pay max c','pay lojas','pay recan','pay torta','pay the b',
+    'pay f s','pay jim','pay jo','pix qrs ifood','pix qrs shpp brasil',
+    'shpp brasil','pix qrs muffatao','pix qrs super muffa','rshop muffato',
+    'pix qrs mes - ataca','mes atacado','mes - ataca','pix qrs mercado pag',
+    'pix qrs cordoba','pix qrs roli foods','pix qrs pevil','pix qrs oba oba',
+    'pix qrs bruxelas','pix qrs espetaria','pix qrs sao joao','cafeteria g',
+    'pix qrs cafeteria','pix marketp','pix qrs pix marketp','pix qrs zoop',
+    'pix qrs marta heloi','pay mesco','pay insti','roli foods',
+    'cordoba dis','muffatao','muffato','super muffa'
+  ]},
+  // ── Moradia / Financiamento ────────────────────────────
+  {cat:'Moradia', ded:false, keys:[
+    'aluguel','financiamento','condomínio','condominio','iptu','energia',
+    'gás','caixa econômica','cef','habite','parcela imovel','prestação',
+    'enel','copel','sanepar','sabesp','comgas','cedae',
+    'pag boleto gci caixa','gci caixa','habitacao','gci caixa - habitacao',
+    'pag boleto mrv','mrv eng','mrv e participacoes','pag boleto cartoes caix',
+    'cartoes caix','renegociacao itau','itau visa',
+    'pag boleto banco c6','banco c6','pag boleto cartoes caixa renegociacao',
+    'pagueveloz','pix qrs pagueveloz','ted 104.0000caixa'
+  ]},
+  // ── Transporte ─────────────────────────────────────────
+  {cat:'Transporte', ded:false, keys:[
+    'posto','combustível','combustivel','gasolina','uber','táxi','taxi',
+    'metro','metrô','onibus','ônibus','estacionamento','pedágio','pedagio',
+    'detran','ipva','shell','ipiranga','int itau click','pay uber','pay comb'
+  ]},
+  // ── Transferências pessoais ────────────────────────────
+  {cat:'Outros', ded:false, keys:[
+    'pix transf','ted ','doc ','iof','tarifa','taxa','juros','iof -',
+    'juros limite','juros excesso','rend pago aplic aut mais',
+    'pix qrs santuario','pix qrs paroquia','pix qrs mitra arq',
+    'pix qrs justica ele','pix qrs heitor deno','pix qrs glaucia',
+    'pix qrs wilian','pix qrs elisamara','pix qrs persona',
+    'pix qrs amanda','dev pix','pag boleto xp','pag boleto nu',
+    'pay shop','pay ingaf','pay mp u','pay mp c','pay xyzes','pay fj ce'
+  ]},
 ];
 
 function categorize(desc){
@@ -1117,76 +1179,197 @@ async function processPDF(file){
     showProgress(true, 'Extraindo texto do PDF...');
     const arrayBuffer = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
-    let fullText = '';
     const total = pdf.numPages;
 
+    // Estratégia: extrair texto página por página preservando espaços entre tokens
+    // O Itaú usa colunas (data | lancamento | valor | saldo) — cada célula é um item separado
+    // Vamos coletar os itens com posição X para reconstruir as linhas corretamente
+    let pageTexts = [];
     for(let i=1;i<=total;i++){
-      setProgress(Math.round((i/total)*60), `Página ${i} de ${total}...`);
+      setProgress(Math.round((i/total)*55), `Página ${i} de ${total}...`);
       const page = await pdf.getPage(i);
       const content = await page.getTextContent();
-      const lines = content.items.map(it=>it.str).join(' ');
-      fullText += lines + '\n';
+      const vp = page.getViewport({scale:1});
+
+      // Coletar items com coordenadas
+      const items = content.items
+        .filter(it => it.str && it.str.trim())
+        .map(it => ({
+          text: it.str,
+          x: Math.round(it.transform[4]),
+          y: Math.round(vp.height - it.transform[5])
+        }));
+
+      pageTexts.push(items);
     }
 
-    setProgress(70,'Interpretando transações...');
-    const txs = parsePDFText(fullText, file.name);
+    setProgress(65,'Reconstruindo linhas...');
+    const fullText = reconstructText(pageTexts);
+
+    setProgress(75,'Interpretando transações...');
+    const txs = parseItauText(fullText, file.name);
     finalizeImport(txs, file.name);
 
   }catch(err){
     showProgress(false);
-    showToast('❌ Erro ao processar PDF: '+err.message);
+    showToast('Erro ao processar PDF: '+err.message);
     console.error(err);
   }
 }
 
-function parsePDFText(text, filename){
-  const txs = [];
-  const lines = text.split('\n').map(l=>l.trim()).filter(l=>l.length>3);
-
-  // Padrão 1: data + descrição + valor (ex: Nubank, Itaú, Bradesco)
-  // "15/03/2025 Supermercado BIG 287,50"
-  const p1 = /(\d{2}\/\d{2}\/\d{4}|\d{2}\/\d{2}\/\d{2})\s+(.{4,60}?)\s+([-]?\d{1,3}(?:\.\d{3})*(?:,\d{2})?)\s*$/;
-
-  // Padrão 2: data com traço
-  // "15-03-2025 descrição 287,50"
-  const p2 = /(\d{2}-\d{2}-\d{4})\s+(.{4,60}?)\s+([-]?\d{1,3}(?:\.\d{3})*(?:,\d{2})?)\s*$/;
-
-  // Padrão 3: caixa econômica — "01/2025  1.245,92  Amortização  ..."
-  const p3 = /(\d{2}\/\d{4})\s+([\d.,]+)\s+(.+)/;
-
-  for(const line of lines){
-    let m = p1.exec(line) || p2.exec(line);
-    if(m){
-      const dateStr = parseDate(m[1]);
-      const desc = m[2].trim();
-      const val  = parseFloat(m[3].replace(/\./g,'').replace(',','.'));
-      if(!isNaN(val) && val > 0 && desc.length > 2){
-        const catInfo = categorize(desc);
-        txs.push({
-          id: Date.now()+Math.random(), date:dateStr, desc, val,
-          cat:catInfo.cat, deductible:catInfo.deductible, source:filename
-        });
+// Reconstrói texto agrupando items por linha (Y próximo) e ordenando por X
+function reconstructText(pageTexts){
+  let lines = [];
+  for(const items of pageTexts){
+    if(!items.length) continue;
+    // Agrupar por Y com tolerância de 3px
+    const rowMap = new Map();
+    for(const item of items){
+      let foundKey = null;
+      for(const key of rowMap.keys()){
+        if(Math.abs(key - item.y) <= 3){ foundKey = key; break; }
       }
-      continue;
+      if(foundKey === null){
+        rowMap.set(item.y, [item]);
+      } else {
+        rowMap.get(foundKey).push(item);
+      }
     }
-    // Padrão Caixa
-    m = p3.exec(line);
-    if(m){
-      const dateStr = parseDate('01/'+m[1]);
-      const val = parseFloat(m[2].replace(/\./g,'').replace(',','.'));
-      const desc = m[3].trim();
-      if(!isNaN(val) && val > 0){
-        txs.push({
-          id:Date.now()+Math.random(), date:dateStr,
-          desc: desc||'Parcela financiamento', val,
-          cat:'Moradia', deductible:false, source:filename
-        });
+    // Ordenar linhas por Y, células por X
+    const sortedRows = [...rowMap.entries()]
+      .sort((a,b) => a[0]-b[0])
+      .map(([,cells]) => cells.sort((a,b)=>a.x-b.x).map(c=>c.text.trim()).filter(Boolean));
+
+    for(const row of sortedRows){
+      lines.push(row.join('\t')); // usar TAB como separador entre colunas
+    }
+  }
+  return lines.join('\n');
+}
+
+// Parser principal — entende o formato do extrato Itaú
+function parseItauText(text, filename){
+  const txs = [];
+
+  // Padrão Itaú: cada linha de transação tem
+  // [DATA]\t[DESCRICAO...]\t[VALOR]\t?[SALDO]
+  // ou pode vir em linha única: "30/12/2025\tPIX QRS SHPP BRASIL30/12\t-51,86"
+  // O valor pode ser positivo ou negativo
+  // "SALDO DO DIA" não tem valor na coluna valor, só na coluna saldo
+
+  const DATE_RE = /^\d{2}\/\d{2}\/\d{4}$/;
+  const VAL_RE  = /^-?\d{1,3}(?:\.\d{3})*,\d{2}$/;
+
+  // ── MÉTODO 1: processar linha a linha (tab-separated)
+  const lines = text.split('\n');
+  for(const line of lines){
+    const cols = line.split('\t').map(c=>c.trim()).filter(c=>c.length>0);
+    if(!cols.length) continue;
+
+    // Verificar se primeira coluna é uma data válida
+    if(!DATE_RE.test(cols[0])) continue;
+
+    const date = parseDate(cols[0]);
+
+    // Filtrar linhas de SALDO DO DIA (não tem valor de transação)
+    const lineText = cols.join(' ');
+    if(lineText.includes('SALDO DO DIA')) continue;
+
+    // Separar tokens de valor dos de descrição
+    // Valor da transação = primeiro token que parece monetário (ex: -51,86)
+    // Saldo = segundo token monetário (pode não existir na linha)
+    const valTokens = cols.slice(1).filter(c => VAL_RE.test(c));
+    const descTokens = cols.slice(1).filter(c => !VAL_RE.test(c) && !DATE_RE.test(c));
+
+    const desc = descTokens.join(' ').trim();
+    if(!desc || desc.length < 2) continue;
+
+    // Pegar primeiro valor (coluna "valor R$")
+    let val = null;
+    if(valTokens.length > 0){
+      val = Math.abs(parseFloat(valTokens[0].replace(/\./g,'').replace(',','.')));
+    }
+
+    // Se não achou token isolado, tentar regex na linha inteira
+    if(val === null || val === 0){
+      const mVal = lineText.match(/-?\d{1,3}(?:\.\d{3})*,\d{2}/g);
+      if(mVal && mVal.length > 0){
+        val = Math.abs(parseFloat(mVal[0].replace(/\./g,'').replace(',','.')));
+      }
+    }
+
+    if(!val || val === 0) continue;
+
+    const catInfo = categorize(desc);
+    txs.push({
+      id: Date.now()+Math.random(),
+      date, desc, val,
+      cat: catInfo.cat,
+      deductible: catInfo.deductible,
+      source: filename
+    });
+  }
+
+  // ── MÉTODO 2: fallback — varredura por regex no texto completo
+  // Captura linhas que não foram pegas pelo método 1
+  // Formato: DD/MM/YYYY [texto] -NN,NN  (com possível saldo depois)
+  if(txs.length < 5){
+    // Juntar tudo removendo tabs para varredura por regex
+    const flat = text.replace(/\t/g,' ').replace(/\n/g,' ');
+    // Regex: data + descrição (não começa com dígito) + valor negativo ou positivo
+    const RE = /(\d{2}\/\d{2}\/\d{4})\s+((?:[A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ][^\d]{2,60}?))\s+(-?\d{1,3}(?:\.\d{3})*,\d{2})/g;
+    let m;
+    while((m = RE.exec(flat)) !== null){
+      const date = parseDate(m[1]);
+      const desc = m[2].trim();
+      const val  = Math.abs(parseFloat(m[3].replace(/\./g,'').replace(',','.')));
+      if(desc.length>2 && val>0 && !desc.includes('SALDO DO DIA')){
+        // Verificar se já foi capturado pelo método 1
+        const dup = txs.some(t=>t.date===date && Math.abs(t.val-val)<0.01 && t.desc.substring(0,8)===desc.substring(0,8));
+        if(!dup){
+          const catInfo = categorize(desc);
+          txs.push({
+            id:Date.now()+Math.random(),
+            date, desc, val,
+            cat:catInfo.cat, deductible:catInfo.deductible,
+            source:filename
+          });
+        }
       }
     }
   }
-  return txs;
-}
 
+  // ── MÉTODO 3: varredura linha por linha no texto plano (sem tabs)
+  // Para PDFs onde o layout não preservou colunas
+  const plainLines = text.split('\n');
+  for(const line of plainLines){
+    // Tentar padrão: "DD/MM/YYYY DESCRIÇÃO -NN,NN" em texto simples
+    const m = /^(\d{2}\/\d{2}\/\d{4})\s+(.+?)\s+(-?\d{1,3}(?:\.\d{3})*,\d{2})(?:\s+-?\d{1,3}(?:\.\d{3})*,\d{2})?$/.exec(line.trim());
+    if(!m) continue;
+    const date = parseDate(m[1]);
+    const desc = m[2].trim();
+    const val  = Math.abs(parseFloat(m[3].replace(/\./g,'').replace(',','.')));
+    if(desc.length<2 || val===0 || desc.includes('SALDO DO DIA')) continue;
+    const dup = txs.some(t=>t.date===date && Math.abs(t.val-val)<0.01 && t.desc.substring(0,8)===desc.substring(0,8));
+    if(!dup){
+      const catInfo = categorize(desc);
+      txs.push({
+        id:Date.now()+Math.random(),
+        date, desc, val,
+        cat:catInfo.cat, deductible:catInfo.deductible,
+        source:filename
+      });
+    }
+  }
+
+  // Remover duplicatas exatas
+  const seen = new Set();
+  return txs.filter(t=>{
+    const key = `${t.date}|${t.desc.substring(0,20)}|${t.val.toFixed(2)}`;
+    if(seen.has(key)) return false;
+    seen.add(key); return true;
+  });
+}
 // ─── FINALIZAR IMPORTAÇÃO ────────────────────────────────
 function finalizeImport(txs, filename){
   setProgress(90,'Salvando...');
